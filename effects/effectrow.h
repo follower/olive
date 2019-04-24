@@ -461,6 +461,11 @@ private:
    * @brief Internal array of node edges. Access with AddEdge() and RemoveEdge().
    */
   QVector<NodeEdgePtr> node_edges_;
+
+  /**
+   * @brief Internal data value, if there are no fields
+   */
+  QVariant persistent_data_;
 };
 
 #endif // EFFECTROW_H

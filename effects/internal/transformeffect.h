@@ -37,7 +37,7 @@ public:
   virtual NodePtr Create(Clip *c) override;
 
   virtual void refresh() override;
-  virtual void process_coords(double timecode, GLTextureCoords& coords, int data) override;
+  virtual void Process(double timecode) override;
 
   virtual void gizmo_draw(double timecode, GLTextureCoords& coords) override;
 
@@ -51,6 +51,8 @@ private:
   DoubleInput* rotation;
   Vec2Input* anchor_point;
   DoubleInput* opacity;
+
+  EffectRow* matrix_output_;
 
   EffectGizmo* top_left_gizmo;
   EffectGizmo* top_center_gizmo;

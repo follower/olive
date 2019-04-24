@@ -147,15 +147,17 @@ QVariant EffectRow::GetValueAt(double timecode)
     return Field(0)->GetValueAt(timecode);
 
   } else {
-    return 0;
+    return persistent_data_;
   }
 }
 
 void EffectRow::SetValueAt(double timecode, const QVariant &value)
 {
-  Q_ASSERT(FieldCount() == 1);
-
-  Field(0)->SetValueAt(timecode, value);
+  if (FieldCount() == 1) {
+    Field(0)->SetValueAt(timecode, value);
+  } else {
+    persistent_data_ = value;
+  }
 }
 
 void EffectRow::SetEnabled(bool enabled)

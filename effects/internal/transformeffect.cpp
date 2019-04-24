@@ -44,8 +44,6 @@
 #include "ui/viewerwidget.h"
 
 TransformEffect::TransformEffect(Clip* c) : Node(c) {
-  SetFlags(Node::CoordsFlag);
-
   position = new Vec2Input(this, "pos", tr("Position"));
 
   scale = new Vec2Input(this, "scale", tr("Scale"));
@@ -68,8 +66,8 @@ TransformEffect::TransformEffect(Clip* c) : Node(c) {
   opacity->SetDefault(100);
 
   // TEMP - Create matrix output
-  EffectRow* matrix_output = new EffectRow(this, "matrix", "Matrix", false, false);
-  matrix_output->SetOutputDataType(olive::nodes::kMatrix);
+  matrix_output_ = new EffectRow(this, "matrix", "Matrix", false, false);
+  matrix_output_->SetOutputDataType(olive::nodes::kMatrix);
 
   // set up gizmos
   top_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
@@ -200,28 +198,32 @@ void TransformEffect::toggle_uniform_scale(bool enabled) {
   bottom_right_gizmo->y_field1 = enabled ? nullptr : scale_y;
 }
 
-void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, int) {
+void TransformEffect::Process(double timecode) {
+  QMatrix4x4 matrix;
+
   // position
-  coords.matrix.translate(position->GetVector2DAt(timecode)
+  matrix.translate(position->GetVector2DAt(timecode)
                           - QVector2D(parent_clip->track()->sequence()->width*0.5f,
                                       parent_clip->track()->sequence()->height*0.5f));
 
   // anchor point
   QVector2D anchor_val = anchor_point->GetVector2DAt(timecode);
 
-  coords.vertex_top_left -= anchor_val;
-  coords.vertex_top_right -= anchor_val;
-  coords.vertex_bottom_left -= anchor_val;
-  coords.vertex_bottom_right -= anchor_val;
+  //coords.vertex_top_left -= anchor_val;
+  //coords.vertex_top_right -= anchor_val;
+  //coords.vertex_bottom_left -= anchor_val;
+  //coords.vertex_bottom_right -= anchor_val;
 
   // rotation
-  coords.matrix.rotate(QQuaternion::fromEulerAngles(0, 0, rotation->GetDoubleAt(timecode)));
+  matrix.rotate(QQuaternion::fromEulerAngles(0, 0, rotation->GetDoubleAt(timecode)));
 
   // scale
-  coords.matrix.scale(scale->GetVector2DAt(timecode)*0.01);
+  matrix.scale(scale->GetVector2DAt(timecode)*0.01);
 
   // opacity
-  coords.opacity *= float(opacity->GetDoubleAt(timecode)*0.01);
+  //coords.opacity *= float(opacity->GetDoubleAt(timecode)*0.01);
+
+  matrix_output_->SetValueAt(0, matrix);
 }
 
 QVector3D LerpVector3D(const QVector3D& a, const QVector3D& b, float t) {
