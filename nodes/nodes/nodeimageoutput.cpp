@@ -3,8 +3,14 @@
 NodeImageOutput::NodeImageOutput(Clip *c) :
   Node(c)
 {
-  EffectRow* input_texture = new EffectRow(this, "texture", tr("Texture"), true, false);
-  input_texture->AddAcceptedNodeInput(olive::nodes::kTexture);
+  input_texture_ = new EffectRow(this, "texture", tr("Texture"), true, false);
+  input_texture_->AddAcceptedNodeInput(olive::nodes::kTexture);
+  input_texture_->SetValueAt(0, 0);
+}
+
+GLuint NodeImageOutput::texture()
+{
+  return input_texture_->GetValueAt(0).toUInt();
 }
 
 QString NodeImageOutput::name()

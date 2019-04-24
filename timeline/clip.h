@@ -153,16 +153,6 @@ public:
   QMutex state_change_lock;
   QMutex cache_lock;
 
-  // video playback variables
-  QVector<FramebufferObject> fbo;
-  GLuint texture;
-  int64_t texture_timestamp;
-
-#ifndef NO_OCIO
-  QOpenGLShaderProgramPtr ocio_shader;
-  GLuint ocio_lut_texture;
-#endif
-
 private:
   // timeline variables (should be copied in copy())
   Track* track_;
@@ -177,9 +167,6 @@ private:
   double cached_fr_;
   bool reverse_;
   bool autoscale_;
-
-  Cacher cacher;
-  long cacher_frame;
 
   NodeGraph pipeline_;
 
