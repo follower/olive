@@ -101,6 +101,13 @@ QVector2D Vec2Input::GetVector2DAt(double timecode)
 
 QVariant Vec2Input::GetValueAt(double timecode)
 {
+  if (!edges().isEmpty() && IsNodeInput()) {
+
+    // Default to using the connected node's output if there is one
+    return edges().first()->output()->GetValueAt(timecode);
+
+  }
+
   QVector2D vec2;
   vec2.setX(static_cast<DoubleField*>(Field(0))->GetDoubleAt(timecode));
 
@@ -133,6 +140,13 @@ QVector3D Vec3Input::GetVector3DAt(double timecode)
 
 QVariant Vec3Input::GetValueAt(double timecode)
 {
+  if (!edges().isEmpty() && IsNodeInput()) {
+
+    // Default to using the connected node's output if there is one
+    return edges().first()->output()->GetValueAt(timecode);
+
+  }
+
   QVector3D vec3;
   vec3.setX(static_cast<DoubleField*>(Field(0))->GetDoubleAt(timecode));
 
@@ -168,13 +182,20 @@ QVector4D Vec4Input::GetVector4DAt(double timecode)
 
 QVariant Vec4Input::GetValueAt(double timecode)
 {
+  if (!edges().isEmpty() && IsNodeInput()) {
+
+    // Default to using the connected node's output if there is one
+    return edges().first()->output()->GetValueAt(timecode);
+
+  }
+
   QVector4D vec4;
   vec4.setX(static_cast<DoubleField*>(Field(0))->GetDoubleAt(timecode));
 
   if (single_value_mode_) {
     vec4.setY(static_cast<DoubleField*>(Field(0))->GetDoubleAt(timecode));
     vec4.setZ(static_cast<DoubleField*>(Field(0))->GetDoubleAt(timecode));
-    vec4.setZ(static_cast<DoubleField*>(Field(0))->GetDoubleAt(timecode));
+    vec4.setW(static_cast<DoubleField*>(Field(0))->GetDoubleAt(timecode));
   } else {
     vec4.setY(static_cast<DoubleField*>(Field(1))->GetDoubleAt(timecode));
     vec4.setZ(static_cast<DoubleField*>(Field(2))->GetDoubleAt(timecode));

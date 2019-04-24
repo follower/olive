@@ -10,5 +10,5 @@ FontInput::FontInput(Node* parent, const QString& id, const QString& name, bool 
 
 QString FontInput::GetFontAt(double timecode)
 {
-  return static_cast<FontField*>(Field(0))->GetFontAt(timecode);
+  return GetValueAt(timecode).toString();
 }

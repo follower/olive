@@ -10,5 +10,5 @@ StringInput::StringInput(Node* parent, const QString& id, const QString& name, b
 
 QString StringInput::GetStringAt(double timecode)
 {
-  return static_cast<StringField*>(Field(0))->GetStringAt(timecode);
+  return GetValueAt(timecode).toString();
 }

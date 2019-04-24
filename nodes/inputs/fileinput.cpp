@@ -10,5 +10,5 @@ FileInput::FileInput(Node* parent, const QString& id, const QString& name, bool 
 
 QString FileInput::GetFileAt(double timecode)
 {
-  return static_cast<FileField*>(Field(0))->GetFileAt(timecode);
+  return GetValueAt(timecode).toString();
 }

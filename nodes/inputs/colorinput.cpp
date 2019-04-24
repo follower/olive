@@ -10,5 +10,5 @@ ColorInput::ColorInput(Node* parent, const QString& id, const QString& name, boo
 
 QColor ColorInput::GetColorAt(double timecode)
 {
-  return static_cast<ColorField*>(Field(0))->GetColorAt(timecode);
+  return GetValueAt(timecode).value<QColor>();
 }

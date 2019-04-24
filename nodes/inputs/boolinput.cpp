@@ -12,5 +12,5 @@ BoolInput::BoolInput(Node* parent, const QString& id, const QString& name, bool 
 
 bool BoolInput::GetBoolAt(double timecode)
 {
-  return static_cast<BoolField*>(Field(0))->GetBoolAt(timecode);
+  return GetValueAt(timecode).toBool();
 }

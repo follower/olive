@@ -136,9 +136,19 @@ bool EffectRow::IsKeyframable()
 
 QVariant EffectRow::GetValueAt(double timecode)
 {
-  Q_ASSERT(FieldCount() == 1);
+  if (!node_edges_.isEmpty() && IsNodeInput()) {
 
-  return Field(0)->GetValueAt(timecode);
+    // Default to using the connected node's output if there is one
+    return node_edges_.first()->output()->GetValueAt(timecode);
+
+  } else if (FieldCount() > 0) {
+
+    // Otherwise try to return the first field's value
+    return Field(0)->GetValueAt(timecode);
+
+  } else {
+    return 0;
+  }
 }
 
 void EffectRow::SetValueAt(double timecode, const QVariant &value)
