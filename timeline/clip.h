@@ -129,8 +129,6 @@ public:
   QVector<Marker>& get_markers();
 
   // other variables (should be deep copied/duplicated in copy())
-  int IndexOfEffect(Node* e);
-  QList<NodePtr> effects;
   QVector<Clip*> linked;
   TransitionPtr opening_transition;
   TransitionPtr closing_transition;

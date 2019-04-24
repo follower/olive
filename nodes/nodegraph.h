@@ -18,6 +18,15 @@ public:
   void AddNode(NodePtr node);
 
   /**
+   * @brief Add a node to this graph
+   *
+   * Creates a node according to type and adds it to this graph
+   *
+   * @param type
+   */
+  void AddNode(NodeType type);
+
+  /**
    * @brief Process the graph
    *
    * Using the output node set by SetOutputNode(), this function will work backwards and perform every action in the
@@ -47,7 +56,8 @@ public:
   Node* OutputNode();
 
 private:  
-  NodePtr output_node_;
+  QVector<NodePtr> nodes_;
+  Node* output_node_;
 };
 
 #endif // NODEGRAPH_H
