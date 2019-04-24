@@ -109,10 +109,10 @@ void FFmpegDecoder::Open()
   }
 }
 
-uint8_t** FFmpegDecoder::Retrieve(double time)
+DecoderFrame FFmpegDecoder::Retrieve(double time)
 {
   if (!IsOpen()) {
-    return nullptr;
+    return DecoderFrame();
   }
 
   int64_t timestamp = qRound64(time * av_q2d(av_inv_q(stream_->time_base)));
@@ -126,6 +126,8 @@ uint8_t** FFmpegDecoder::Retrieve(double time)
   // Keep retrieving frames until the timestamp is reached
 
   // Return that
+
+  return DecoderFrame(frame_->data, frame_->linesize, pix_fmt_, frame_->width, frame_->height);
 }
 
 void FFmpegDecoder::Close()

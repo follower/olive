@@ -76,7 +76,7 @@ GLfloat olive::rendering::flipped_blit_texcoords[] = {
   1.0, 0.0
 };
 
-void PrepareToDraw(QOpenGLFunctions* f) {
+void olive::rendering::PrepareToDraw(QOpenGLFunctions* f) {
   f->glGenerateMipmap(GL_TEXTURE_2D);
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

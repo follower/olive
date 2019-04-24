@@ -31,7 +31,7 @@ public:
   FFmpegDecoder();
 
   virtual void Open() override;
-  virtual uint8_t** Retrieve(double time) override;
+  virtual DecoderFrame Retrieve(double time) override;
   virtual void Close() override;
   virtual bool IsOpen() override;
 

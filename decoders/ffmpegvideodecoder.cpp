@@ -165,3 +165,21 @@ void FFmpegVideoDecoder::Open()
     return;
   }
 }
+
+int FFmpegVideoDecoder::width()
+{
+  if (!IsOpen()) {
+    return 0;
+  }
+
+  return stream_->codecpar->width;
+}
+
+int FFmpegVideoDecoder::height()
+{
+  if (!IsOpen()) {
+    return 0;
+  }
+
+  return stream_->codecpar->height;
+}

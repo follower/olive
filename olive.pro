@@ -209,7 +209,8 @@ SOURCES += \
     nodes/nodeedge.cpp \
     ui/nodeedgeui.cpp \
     decoders/ffmpegdecoder.cpp \
-    decoders/ffmpegvideodecoder.cpp
+    decoders/ffmpegvideodecoder.cpp \
+    rendering/memorycache.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -376,7 +377,8 @@ HEADERS += \
     nodes/nodeedge.h \
     ui/nodeedgeui.h \
     decoders/ffmpegdecoder.h \
-    decoders/ffmpegvideodecoder.h
+    decoders/ffmpegvideodecoder.h \
+    rendering/memorycache.h
 
 FORMS +=
 

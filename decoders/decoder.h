@@ -6,6 +6,26 @@
 #include "project/media.h"
 #include "rendering/pixelformats.h"
 
+class DecoderFrame {
+public:
+  DecoderFrame();
+  DecoderFrame(uint8_t** data, int* linesize, olive::PixelFormat pix_fmt, int width, int height);
+
+  bool IsValid();
+
+  uint8_t** data();
+  int* linesize();
+  olive::PixelFormat pix_fmt();
+  int width();
+  int height();
+private:
+  uint8_t** data_;
+  int* linesize_;
+  olive::PixelFormat pix_fmt_;
+  int width_;
+  int height_;
+};
+
 /**
  * @brief The Decoder class
  *
@@ -29,8 +49,11 @@ public:
 
   virtual void Open() = 0;
   virtual void Close() = 0;
-  virtual uint8_t** Retrieve(double time) = 0;
+  virtual DecoderFrame Retrieve(double time) = 0;
   virtual bool IsOpen() = 0;
+
+  virtual int width();
+  virtual int height();
 
   void SetStream(FootageStream* fs);
 

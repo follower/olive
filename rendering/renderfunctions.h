@@ -241,6 +241,7 @@ namespace olive {
                   GLuint lut,
                   const FramebufferObject& fbo,
                   GLuint texture);
+    void PrepareToDraw(QOpenGLFunctions* f);
   }
 }
 
