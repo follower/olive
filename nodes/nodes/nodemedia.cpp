@@ -3,11 +3,44 @@
 NodeMedia::NodeMedia(Clip* c) :
   Node(c)
 {
-  EffectRow* matrix_input = new EffectRow(this, "matrix", tr("Matrix"), true, false);
-  matrix_input->AddAcceptedNodeInput(olive::nodes::kMatrix);
+  matrix_input_ = new EffectRow(this, "matrix", tr("Matrix"), true, false);
+  matrix_input_->AddAcceptedNodeInput(olive::nodes::kMatrix);
 
-  EffectRow* texture_output = new EffectRow(this, "texture", tr("Texture"), true, false);
-  texture_output->SetOutputDataType(olive::nodes::kTexture);
+  texture_output_ = new EffectRow(this, "texture", tr("Texture"), true, false);
+  texture_output_->SetOutputDataType(olive::nodes::kTexture);
+}
+
+void NodeMedia::Open()
+{
+  // Open decoder
+  decoder_->Open();
+
+  // If the decoder opened successfully, we'll set up the destination texture and conversion buffer
+  if (decoder_->IsOpen()) {
+
+  }
+}
+
+void NodeMedia::Process(double time)
+{
+  if (!IsOpen()) {
+
+  }
+
+  // Set texture to null
+  texture_output_->SetValueAt(0, 0);
+
+  if (!decoder_->IsOpen()) {
+
+  }
+
+  uint8_t** data = decoder_->Retrieve(Now());
+
+  if (data == nullptr) {
+    return;
+  }
+
+
 }
 
 QString NodeMedia::name()

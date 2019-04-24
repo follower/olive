@@ -123,7 +123,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
       Node* e = container->GetEffect();
 
       if (container->IsExpanded()) {
-        for (int j=0;j<e->row_count();j++) {
+        for (int j=0;j<e->RowCount();j++) {
           EffectRow* row = e->row(j);
 
           int keyframe_y = container->GetRowY(j, this);

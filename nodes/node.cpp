@@ -62,28 +62,15 @@ QVector<NodePtr> olive::node_library;
 
 Node::Node(Clip* c) :
   parent_clip(c),
-  flags_(0),
-  shader_program_(nullptr),
-  texture(0),
-  tex_width_(0),
-  tex_height_(0),
-  isOpen(false),
-  bound(false),
-  iterations(1),
   enabled_(true),
-  expanded_(true),
-  texture_ctx(nullptr)
+  expanded_(true)
 {
 }
 
 Node::~Node() {
-  if (isOpen) {
-    close();
-  }
-
   // Clear graph editor if it's using one of these rows
   if (panel_graph_editor != nullptr) {
-    for (int i=0;i<row_count();i++) {
+    for (int i=0;i<RowCount();i++) {
       if (row(i) == panel_graph_editor->get_row()) {
         panel_graph_editor->set_row(nullptr);
         break;
@@ -138,7 +125,7 @@ EffectRow* Node::row(int i) {
   return rows.at(i);
 }
 
-int Node::row_count() {
+int Node::RowCount() {
   return rows.size();
 }
 
@@ -160,7 +147,7 @@ QVector<NodeEdgePtr> Node::GetAllEdges()
 {
   QVector<NodeEdgePtr> edges;
 
-  for (int i=0;i<row_count();i++) {
+  for (int i=0;i<RowCount();i++) {
     edges.append(row(i)->edges());
   }
 
@@ -179,36 +166,6 @@ void Node::FieldChanged() {
 void Node::delete_self() {
   olive::undo_stack.push(new EffectDeleteCommand(this));
   update_ui(true);
-}
-
-void Node::move_up() {
-  int index_of_effect = parent_clip->IndexOfEffect(this);
-  if (index_of_effect == 0) {
-    return;
-  }
-
-  MoveEffectCommand* command = new MoveEffectCommand();
-  command->clip = parent_clip;
-  command->from = index_of_effect;
-  command->to = command->from - 1;
-  olive::undo_stack.push(command);
-  panel_effect_controls->Reload();
-  panel_sequence_viewer->viewer_widget()->frame_update();
-}
-
-void Node::move_down() {
-  int index_of_effect = parent_clip->IndexOfEffect(this);
-  if (index_of_effect == parent_clip->effects.size()-1) {
-    return;
-  }
-
-  MoveEffectCommand* command = new MoveEffectCommand();
-  command->clip = parent_clip;
-  command->from = index_of_effect;
-  command->to = command->from + 1;
-  olive::undo_stack.push(command);
-  panel_effect_controls->Reload();
-  panel_sequence_viewer->viewer_widget()->frame_update();
 }
 
 void Node::save_to_file() {
@@ -267,9 +224,9 @@ void Node::load_from_file() {
   }
 }
 
-bool Node::AlwaysUpdate()
+QOpenGLContext *Node::ctx()
 {
-  return false;
+  return QOpenGLContext::currentContext();
 }
 
 bool Node::IsEnabled() {
@@ -493,115 +450,10 @@ QByteArray Node::save_to_string() {
   return save_data;
 }
 
-bool Node::is_open() {
-  return isOpen;
-}
-
-void Node::validate_meta_path() {
-  /*
-  if (!meta->path.isEmpty() || (shader_vert_path_.isEmpty() && shader_frag_path_.isEmpty())) return;
-  QList<QString> effects_paths = get_effects_paths();
-  const QString& test_fn = shader_vert_path_.isEmpty() ? shader_frag_path_ : shader_vert_path_;
-  for (int i=0;i<effects_paths.size();i++) {
-    if (QFileInfo::exists(effects_paths.at(i) + "/" + test_fn)) {
-      for (int j=0;j<olive::effects.size();j++) {
-        if (&olive::effects.at(j) == meta) {
-          olive::effects[j].path = effects_paths.at(i);
-          return;
-        }
-      }
-      return;
-    }
-  }
-  */
-}
-
-void Node::open() {
-  /*
-  if (isOpen) {
-    qWarning() << "Tried to open an effect that was already open";
-    close();
-  }
-  if (olive::runtime_config.shaders_are_enabled && (Flags() & ShaderFlag)) {
-    if (QOpenGLContext::currentContext() == nullptr) {
-      qWarning() << "No current context to create a shader program for - will retry next repaint";
-    } else {
-      validate_meta_path();
-
-      QString frag_shader_str;
-      QString frag_file_url = QDir(file).filePath(shader_frag_path_);
-      QFile frag_file(frag_file_url);
-      if (frag_file.open(QFile::ReadOnly)) {
-        frag_shader_str = frag_file.readAll();
-        frag_file.close();
-      } else {
-        qWarning() << "Failed to open" << frag_file_url;
-      }
-
-      if (!frag_shader_str.isEmpty()) {
-
-        QString shader_func;
-
-        if (!shader_function_name_.isEmpty()) {
-          shader_func = shader_function_name_;
-        } else {
-          shader_func = "process";
-        }
-
-        shader_program_ = olive::shader::GetPipeline(shader_func, frag_shader_str);
-
-      }
-      isOpen = true;
-    }
-  } else {
-    isOpen = true;
-  }
-  */
-  isOpen = true;
-}
-
-void Node::close() {
-  if (!isOpen) {
-    qWarning() << "Tried to close an effect that was already closed";
-  }
-  delete_texture();
-  shader_program_ = nullptr;
-  isOpen = false;
-}
-
-bool Node::is_shader_linked() {
-  return shader_program_ != nullptr && shader_program_->isLinked();
-}
-
-QOpenGLShaderProgram *Node::GetShaderPipeline()
-{
-  return shader_program_.get();
-}
-
-int Node::Flags()
-{
-  return flags_;
-}
-
-void Node::SetFlags(int flags)
-{
-  flags_ = flags;
-}
-
-int Node::getIterations() {
-  return iterations;
-}
-
-void Node::setIterations(int i) {
-  iterations = i;
-}
-
 const QPointF &Node::pos()
 {
   return pos_;
 }
-
-void Node::process_image(double, uint8_t *, uint8_t *, int){}
 
 NodePtr Node::copy(Clip *c) {
   NodePtr copy = Create(c);
@@ -609,119 +461,6 @@ NodePtr Node::copy(Clip *c) {
   copy_field_keyframes(copy);
   return copy;
 }
-
-void Node::process_shader(double timecode, GLTextureCoords&, int iteration) {
-  /*
-  shader_program_->bind();
-
-  shader_program_->setUniformValue("resolution", parent_clip->media_width(), parent_clip->media_height());
-  shader_program_->setUniformValue("time", GLfloat(timecode));
-  shader_program_->setUniformValue("iteration", iteration);
-
-  for (int i=0;i<rows.size();i++) {
-    EffectRow* row = rows.at(i);
-
-    for (int j=0;j<row->FieldCount();j++) {
-      EffectField* field = row->Field(j);
-      if (!field->id().isEmpty()) {
-        switch (field->type()) {
-        case EffectField::EFFECT_FIELD_DOUBLE:
-        {
-          DoubleField* double_field = static_cast<DoubleField*>(field);
-          shader_program_->setUniformValue(double_field->id().toUtf8().constData(),
-                                           GLfloat(double_field->GetDoubleAt(timecode)));
-        }
-          break;
-        case EffectField::EFFECT_FIELD_COLOR:
-        {
-          ColorField* color_field = static_cast<ColorField *>(field);
-          shader_program_->setUniformValue(
-                color_field->id().toUtf8().constData(),
-                GLfloat(color_field->GetColorAt(timecode).redF()),
-                GLfloat(color_field->GetColorAt(timecode).greenF()),
-                GLfloat(color_field->GetColorAt(timecode).blueF())
-                );
-        }
-          break;
-        case EffectField::EFFECT_FIELD_BOOL:
-          shader_program_->setUniformValue(field->id().toUtf8().constData(), field->GetValueAt(timecode).toBool());
-          break;
-        case EffectField::EFFECT_FIELD_COMBO:
-          shader_program_->setUniformValue(field->id().toUtf8().constData(), field->GetValueAt(timecode).toInt());
-          break;
-
-          // can you even send a string to a uniform value?
-        case EffectField::EFFECT_FIELD_STRING:
-        case EffectField::EFFECT_FIELD_FONT:
-        case EffectField::EFFECT_FIELD_FILE:
-        case EffectField::EFFECT_FIELD_UI:
-          break;
-        }
-      }
-    }
-  }
-
-  shader_program_->release();
-  */
-}
-
-void Node::process_coords(double, GLTextureCoords&, int) {}
-
-GLuint Node::process_superimpose(QOpenGLContext* ctx, double timecode) {
-  bool dimensions_changed = false;
-  bool redrew_image = false;
-
-  int width = parent_clip->media_width();
-  int height = parent_clip->media_height();
-
-  if (width != img.width() || height != img.height()) {
-    img = QImage(width, height, QImage::Format_RGBA8888_Premultiplied);
-    dimensions_changed = true;
-  }
-
-  if (valueHasChanged(timecode) || dimensions_changed || AlwaysUpdate()) {
-    redraw(timecode);
-    redrew_image = true;
-  }
-
-  QOpenGLFunctions* f = ctx->functions();
-
-  if (texture == 0 || tex_width_ != img.width() || tex_height_ != img.height()) {
-    delete_texture();
-
-    tex_width_ = img.width();
-    tex_height_ = img.height();
-
-    // create texture object
-    f->glGenTextures(1, &texture);
-
-    f->glBindTexture(GL_TEXTURE_2D, texture);
-
-    // set texture filtering to bilinear
-    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    f->glTexImage2D(
-          GL_TEXTURE_2D, 0, GL_RGBA8, tex_width_, tex_height_, 0, GL_RGBA,  GL_UNSIGNED_BYTE, img.constBits()
-          );
-
-    f->glBindTexture(GL_TEXTURE_2D, 0);
-
-    redrew_image = false;
-  }
-
-  if (redrew_image) {
-    f->glBindTexture(GL_TEXTURE_2D, texture);
-
-    f->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tex_width_, tex_height_,  GL_RGBA, GL_UNSIGNED_BYTE, img.constBits());
-
-    f->glBindTexture(GL_TEXTURE_2D, 0);
-  }
-
-  return texture;
-}
-
-void Node::process_audio(double, double, float **, int, int, int) {}
 
 void Node::gizmo_draw(double, GLTextureCoords &) {}
 
@@ -829,89 +568,6 @@ long Node::NowInFrames()
   return playhead_to_clip_frame(parent_clip, parent_clip->track()->sequence()->playhead);
 }
 
-void Node::redraw(double) {
-  /*
-  // run javascript
-  QPainter p(&img);
-  painter_wrapper.img = &img;
-  painter_wrapper.painter = &p;
-
-  jsEngine.globalObject().setProperty("painter", wrapper_obj);
-  jsEngine.globalObject().setProperty("width", parent_clip->media_width());
-  jsEngine.globalObject().setProperty("height", parent_clip->media_height());
-
-  for (int i=0;i<rows.size();i++) {
-    EffectRow* row = rows.at(i);
-    for (int j=0;j<row->fieldCount();j++) {
-      EffectField* field = row->field(j);
-      if (!field->id.isEmpty()) {
-        switch (field->type) {
-        case EffectField::EFFECT_FIELD_DOUBLE:
-          jsEngine.globalObject().setProperty(field->id, field->get_double_value(timecode));
-          break;
-        case EffectField::EFFECT_FIELD_COLOR:
-          jsEngine.globalObject().setProperty(field->id, field->get_color_value(timecode).name());
-          break;
-        case EffectField::EFFECT_FIELD_STRING:
-          jsEngine.globalObject().setProperty(field->id, field->get_string_value(timecode));
-          break;
-        case EffectField::EFFECT_FIELD_BOOL:
-          jsEngine.globalObject().setProperty(field->id, field->get_bool_value(timecode));
-          break;
-        case EffectField::EFFECT_FIELD_COMBO:
-          jsEngine.globalObject().setProperty(field->id, field->get_combo_index(timecode));
-          break;
-        case EffectField::EFFECT_FIELD_FONT:
-          jsEngine.globalObject().setProperty(field->id, field->get_font_name(timecode));
-          break;
-        }
-      }
-    }
-  }
-
-  jsEngine.evaluate(script);
-  */
-}
-
-bool Node::valueHasChanged(double timecode) {
-  if (cachedValues.isEmpty()) {
-
-    for (int i=0;i<row_count();i++) {
-      EffectRow* crow = row(i);
-      for (int j=0;j<crow->FieldCount();j++) {
-        cachedValues.append(crow->Field(j)->GetValueAt(timecode));
-      }
-    }
-    return true;
-
-  } else {
-
-    bool changed = false;
-    int index = 0;
-    for (int i=0;i<row_count();i++) {
-      EffectRow* crow = row(i);
-      for (int j=0;j<crow->FieldCount();j++) {
-        EffectField* field = crow->Field(j);
-        if (cachedValues.at(index) != field->GetValueAt(timecode)) {
-          changed = true;
-        }
-        cachedValues[index] = field->GetValueAt(timecode);
-        index++;
-      }
-    }
-    return changed;
-
-  }
-}
-
-void Node::delete_texture() {
-  if (texture_ctx != nullptr) {
-    texture_ctx->functions()->glDeleteTextures(1, &texture);
-    texture = 0;
-    texture_ctx = nullptr;
-  }
-}
-
 int GetNodeLibraryIndexFromId(const QString& id) {
   for (int i=0;i<olive::node_library.size();i++) {
     if (olive::node_library.at(i)->id() == id) {
@@ -921,23 +577,3 @@ int GetNodeLibraryIndexFromId(const QString& id) {
 
   return -1;
 }
-
-/*
-const EffectMeta* Node::GetMetaFromName(const QString& input) {
-  int split_index = input.indexOf('/');
-  QString category;
-  if (split_index > -1) {
-    category = input.left(split_index);
-  }
-  QString name = input.mid(split_index + 1);
-
-  for (int j=0;j<olive::effects.size();j++) {
-    if (olive::effects.at(j).name == name
-        && (olive::effects.at(j).category == category
-            || category.isEmpty())) {
-      return &olive::effects.at(j);
-    }
-  }
-  return nullptr;
-}
-*/

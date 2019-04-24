@@ -204,11 +204,12 @@ SOURCES += \
     nodes/nodes/nodeimageoutput.cpp \
     nodes/nodes/nodemedia.cpp \
     nodes/nodes/nodeshader.cpp \
-    decoders/ffmpegdecoder.cpp \
     decoders/decoder.cpp \
     nodes/node.cpp \
     nodes/nodeedge.cpp \
-    ui/nodeedgeui.cpp
+    ui/nodeedgeui.cpp \
+    decoders/ffmpegdecoder.cpp \
+    decoders/ffmpegvideodecoder.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -369,12 +370,13 @@ HEADERS += \
     nodes/nodes/nodeimageoutput.h \
     nodes/nodes/nodeshader.h \
     nodes/nodes.h \
-    decoders/ffmpegdecoder.h \
     decoders/decoder.h \
     nodes/node.h \
     timeline/tracktypes.h \
     nodes/nodeedge.h \
-    ui/nodeedgeui.h
+    ui/nodeedgeui.h \
+    decoders/ffmpegdecoder.h \
+    decoders/ffmpegvideodecoder.h
 
 FORMS +=
 

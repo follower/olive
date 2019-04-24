@@ -39,7 +39,7 @@ void NodeUI::SetNode(Node *n)
   QRectF rectangle;
 
   rectangle.setTopLeft(pos());
-  rectangle.setSize(QSizeF(200, GetRowY(node_->row_count())));
+  rectangle.setSize(QSizeF(200, GetRowY(node_->RowCount())));
 
   QRectF inner_rect = rectangle;
   inner_rect.setX(inner_rect.x() + kNodePlugSize/2);
@@ -90,7 +90,7 @@ void NodeUI::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
                     node_->name());
 
   // Draw node row names
-  for (int i=0;i<node_->row_count();i++) {
+  for (int i=0;i<node_->RowCount();i++) {
     int text_x;
 
     if (node_->row(i)->IsNodeOutput()) {
@@ -271,7 +271,7 @@ QVector<QRectF> NodeUI::GetNodeSocketRects()
   if (node_ != nullptr) {
     Node* e = node_;
 
-    for (int i=0;i<e->row_count();i++) {
+    for (int i=0;i<e->RowCount();i++) {
 
       EffectRow* row = e->row(i);      
 
@@ -292,7 +292,7 @@ QVector<QRectF> NodeUI::GetNodeSocketRects()
 
 EffectRow *NodeUI::GetRowFromIndex(int i)
 {
-  if (node_ != nullptr && i < node_->row_count()) {
+  if (node_ != nullptr && i < node_->RowCount()) {
     return node_->row(i);
   }
   return nullptr;

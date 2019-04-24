@@ -103,10 +103,10 @@ EffectUI::EffectUI(Node* e) :
           this,
           SLOT(show_context_menu(const QPoint&)));
 
-  widgets_.resize(e->row_count());
-  keyframe_navigators_.resize(e->row_count());
+  widgets_.resize(e->RowCount());
+  keyframe_navigators_.resize(e->RowCount());
 
-  for (int i=0;i<e->row_count();i++) {
+  for (int i=0;i<e->RowCount();i++) {
     EffectRow* row = e->row(i);
 
     ClickableLabel* row_label = new ClickableLabel(row->name());
@@ -181,7 +181,7 @@ void EffectUI::AddAdditionalEffect(Node *e)
   additional_effects_.append(e);
 
   // Attach this UI's widgets to the additional effect
-  for (int i=0;i<effect_->row_count();i++) {
+  for (int i=0;i<effect_->RowCount();i++) {
 
     EffectRow* row = effect_->row(i);
 
@@ -229,7 +229,7 @@ void EffectUI::UpdateFromEffect()
 {
   Node* effect = GetEffect();
 
-  for (int j=0;j<effect->row_count();j++) {
+  for (int j=0;j<effect->RowCount();j++) {
 
     EffectRow* row = effect->row(j);
 

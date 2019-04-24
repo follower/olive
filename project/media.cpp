@@ -20,11 +20,6 @@
 
 #include "media.h"
 
-extern "C" {
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-}
-
 #include <QCoreApplication>
 #include <QtMath>
 

@@ -113,7 +113,7 @@ class Node : public QObject {
   Q_OBJECT
 public:
   Node(Clip *c);
-  ~Node();
+  virtual ~Node();
 
   Clip* parent_clip;
 
@@ -126,10 +126,15 @@ public:
   virtual bool IsCreatable();
   virtual NodePtr Create(Clip *c) = 0;
 
+  virtual void Open() = 0;
+  virtual void Close() = 0;
+  virtual bool IsOpen() = 0;
+  virtual void Process(double time) = 0;
+
   void AddRow(EffectRow* row);
   int IndexOfRow(EffectRow* row);
   EffectRow* row(int i);
-  int row_count();
+  int RowCount();
 
   EffectGizmo* add_gizmo(int type);
   EffectGizmo* gizmo(int i);
@@ -152,31 +157,7 @@ public:
   void load_from_string(const QByteArray &s);
   QByteArray save_to_string();
 
-  // glsl handling
-  bool is_open();
-  void open();
-  void close();
-  bool is_shader_linked();
-  QOpenGLShaderProgram* GetShaderPipeline();
-
-  enum VideoEffectFlags {
-    ShaderFlag        = 0x1,
-    CoordsFlag        = 0x2,
-    SuperimposeFlag   = 0x4
-  };
-  int Flags();
-  void SetFlags(int flags);
-
-  int getIterations();
-  void setIterations(int i);
-
   const QPointF& pos();
-
-  virtual void process_image(double timecode, uint8_t* input, uint8_t* output, int size);
-  virtual void process_shader(double timecode, GLTextureCoords&, int iteration);
-  virtual void process_coords(double timecode, GLTextureCoords& coords, int data);
-  virtual GLuint process_superimpose(QOpenGLContext *ctx, double timecode);
-  virtual void process_audio(double timecode_start, double timecode_end, float **samples, int nb_samples, int nb_channels, int type);
 
   virtual void gizmo_draw(double timecode, GLTextureCoords& coords);
   void gizmo_move(EffectGizmo* sender, int x_movement, int y_movement, double timecode, bool done);
@@ -234,49 +215,21 @@ signals:
   void EnabledChanged(bool);
 private slots:
   void delete_self();
-  void move_up();
-  void move_down();
   void save_to_file();
   void load_from_file();
 protected:
-  // glsl effect
-  QOpenGLShaderProgramPtr shader_program_;
-  QString shader_vert_path_;
-  QString shader_frag_path_;
-  QString shader_function_name_;
-
-  // superimpose effect
-  QImage img;
-  GLuint texture;
-  QOpenGLContext* texture_ctx;
-  int tex_width_;
-  int tex_height_;
-
-  // enable effect to update constantly
-  virtual bool AlwaysUpdate();
+  QOpenGLContext* ctx();
 
 private:
-  bool isOpen;
   QVector<EffectRow*> rows;
   QVector<EffectGizmo*> gizmos;
-  bool bound;
-  int iterations;
 
   bool enabled_;
   bool expanded_;
 
-  int flags_;
-
   QVector<KeyframeDataChange*> gizmo_dragging_actions_;
 
   QPointF pos_;
-
-  // superimpose functions
-  virtual void redraw(double timecode);
-  bool valueHasChanged(double timecode);
-  QVector<QVariant> cachedValues;
-  void delete_texture();
-  void validate_meta_path();
 };
 
 namespace olive {

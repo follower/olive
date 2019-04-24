@@ -177,3 +177,13 @@ QString Footage::get_channel_layout_name(int channels, uint64_t layout) {
   }
   }
 }
+
+FootageStream::FootageStream(Footage *f) :
+  parent_(f)
+{
+}
+
+Footage *FootageStream::footage()
+{
+  return parent_;
+}

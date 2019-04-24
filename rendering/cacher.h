@@ -24,17 +24,7 @@
 #define __STDC_FORMAT_MACROS 1
 #include <inttypes.h>
 
-extern "C" {
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-#include <libswscale/swscale.h>
-#include <libswresample/swresample.h>
-#include <libavfilter/avfilter.h>
-#include <libavfilter/buffersrc.h>
-#include <libavfilter/buffersink.h>
-#include <libavutil/opt.h>
-#include <libavutil/pixdesc.h>
-}
+
 
 #include <memory>
 #include <QThread>

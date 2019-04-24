@@ -45,8 +45,14 @@ enum VideoInterlacingMode {
 class Sequence;
 class Clip;
 class PreviewGenerator;
+class Footage;
 
-struct FootageStream {
+class FootageStream {
+public:
+  FootageStream(Footage* f);
+
+  Footage* footage();
+
   int file_index;
   int video_width;
   int video_height;
@@ -63,6 +69,9 @@ struct FootageStream {
   bool preview_done;
   QImage video_preview;
   QVector<qint8> audio_preview;
+
+private:
+  Footage* parent_;
 };
 
 class Footage {

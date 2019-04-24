@@ -125,7 +125,7 @@ void NodeEditor::LoadEdges()
       if (n->parent_clip == first_clip) {
 
         // Connect all rows to this
-        for (int j=0;j<n->row_count();j++) {
+        for (int j=0;j<n->RowCount();j++) {
           ConnectRow(n->row(j));
         }
 
