@@ -133,6 +133,8 @@ public:
   TransitionPtr opening_transition;
   TransitionPtr closing_transition;
 
+  NodeGraph* pipeline();
+
   // playback functions
   void Open();
   void Cache(long playhead, bool scrubbing, QVector<Clip*> &nests, int playback_speed);

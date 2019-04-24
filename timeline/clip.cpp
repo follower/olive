@@ -220,6 +220,11 @@ QVector<Marker> &Clip::get_markers() {
   return markers;
 }
 
+NodeGraph *Clip::pipeline()
+{
+  return &pipeline_;
+}
+
 int Clip::IndexOfEffect(Node *e)
 {
   for (int i=0;i<effects.size();i++) {
