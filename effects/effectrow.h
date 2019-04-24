@@ -317,6 +317,19 @@ protected:
    */
   void AddField(EffectField* Field);
 
+  /**
+   * @brief Use in GetValueAt() to determine if the result of GetConnectedValue() should be preferred
+   * @return
+   */
+  bool ShouldUseConnectedValue();
+
+  /**
+   * @brief If another node is connected, trigger it to process and use its value
+   *
+   * @param timecode
+   */
+  QVariant GetConnectedValue(double timecode);
+
 public slots:
   /**
    * @brief Go to previous keyframe

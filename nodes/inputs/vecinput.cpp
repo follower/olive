@@ -101,11 +101,8 @@ QVector2D Vec2Input::GetVector2DAt(double timecode)
 
 QVariant Vec2Input::GetValueAt(double timecode)
 {
-  if (!edges().isEmpty() && IsNodeInput()) {
-
-    // Default to using the connected node's output if there is one
-    return edges().first()->output()->GetValueAt(timecode);
-
+  if (ShouldUseConnectedValue()) {
+    return GetConnectedValue(timecode);
   }
 
   QVector2D vec2;
@@ -140,11 +137,8 @@ QVector3D Vec3Input::GetVector3DAt(double timecode)
 
 QVariant Vec3Input::GetValueAt(double timecode)
 {
-  if (!edges().isEmpty() && IsNodeInput()) {
-
-    // Default to using the connected node's output if there is one
-    return edges().first()->output()->GetValueAt(timecode);
-
+  if (ShouldUseConnectedValue()) {
+    return GetConnectedValue(timecode);
   }
 
   QVector3D vec3;
@@ -182,11 +176,8 @@ QVector4D Vec4Input::GetVector4DAt(double timecode)
 
 QVariant Vec4Input::GetValueAt(double timecode)
 {
-  if (!edges().isEmpty() && IsNodeInput()) {
-
-    // Default to using the connected node's output if there is one
-    return edges().first()->output()->GetValueAt(timecode);
-
+  if (ShouldUseConnectedValue()) {
+    return GetConnectedValue(timecode);
   }
 
   QVector4D vec4;

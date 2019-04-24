@@ -65,6 +65,18 @@ void EffectRow::AddField(EffectField *field)
   fields_.append(field);
 }
 
+bool EffectRow::ShouldUseConnectedValue()
+{
+  return (!node_edges_.isEmpty() && IsNodeInput());
+}
+
+QVariant EffectRow::GetConnectedValue(double timecode)
+{
+  // Default to using the connected node's output if there is one
+  node_edges_.first()->output()->GetParentEffect()->Process(timecode);
+  return node_edges_.first()->output()->GetValueAt(timecode);
+}
+
 void EffectRow::AddAcceptedNodeInput(olive::nodes::DataType type)
 {
   Q_ASSERT(output_type_ == olive::nodes::kInvalid);
@@ -136,10 +148,9 @@ bool EffectRow::IsKeyframable()
 
 QVariant EffectRow::GetValueAt(double timecode)
 {
-  if (!node_edges_.isEmpty() && IsNodeInput()) {
+  if (ShouldUseConnectedValue()) {
 
-    // Default to using the connected node's output if there is one
-    return node_edges_.first()->output()->GetValueAt(timecode);
+    return GetConnectedValue(timecode);
 
   } else if (FieldCount() > 0) {
 
