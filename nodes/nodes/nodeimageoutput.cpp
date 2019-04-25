@@ -47,3 +47,8 @@ NodePtr NodeImageOutput::Create(Clip *c)
 {
   return std::make_shared<NodeImageOutput>(c);
 }
+
+EffectRow *NodeImageOutput::texture_input()
+{
+  return input_texture_;
+}

@@ -18,6 +18,8 @@ public:
   virtual olive::TrackType subtype() override;
   virtual NodePtr Create(Clip *c) override;
 
+  EffectRow* texture_input();
+
 private:
   EffectRow* input_texture_;
 };

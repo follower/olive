@@ -41,6 +41,8 @@ public:
 
   virtual void gizmo_draw(double timecode, GLTextureCoords& coords) override;
 
+  EffectRow* matrix_output();
+
 public slots:
   void toggle_uniform_scale(bool enabled);
 

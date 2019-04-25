@@ -256,3 +256,8 @@ void TransformEffect::gizmo_draw(double, GLTextureCoords& coords) {
   rect_gizmo->world_pos[2] = coords.vertex_bottom_right;
   rect_gizmo->world_pos[3] = coords.vertex_bottom_left;
 }
+
+EffectRow *TransformEffect::matrix_output()
+{
+  return matrix_output_;
+}

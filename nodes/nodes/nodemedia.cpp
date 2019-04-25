@@ -242,6 +242,8 @@ void NodeMedia::Process(double time)
   f->glBindTexture(GL_TEXTURE_2D, 0);
 
   buffer_.Buffer()->ReleaseBuffer();
+
+  texture_output_->SetValueAt(0, buffer_.Buffer()->texture());
 }
 
 QString NodeMedia::name()
@@ -277,4 +279,14 @@ olive::TrackType NodeMedia::subtype()
 NodePtr NodeMedia::Create(Clip *c)
 {
   return std::make_shared<NodeMedia>(c);
+}
+
+EffectRow *NodeMedia::matrix_input()
+{
+  return matrix_input_;
+}
+
+EffectRow *NodeMedia::texture_output()
+{
+  return texture_output_;
 }

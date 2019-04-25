@@ -28,6 +28,9 @@ public:
   virtual olive::TrackType subtype() override;
   virtual NodePtr Create(Clip *c) override;
 
+  EffectRow* matrix_input();
+  EffectRow* texture_output();
+
 private:
   Decoder* decoder_;
 

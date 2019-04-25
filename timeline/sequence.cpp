@@ -28,6 +28,9 @@
 #include "global/config.h"
 #include "global/debug.h"
 
+#include "effects/internal/transformeffect.h"
+#include "nodes/nodes.h"
+
 Sequence::Sequence() :
   playhead(0),
   using_workarea(false),
@@ -229,15 +232,25 @@ void Sequence::AddClipsFromGhosts(ComboAction* ca, const QVector<Ghost>& ghosts)
       }
     }
 
-    if (olive::config.add_default_effects_to_clips) {
-      if (c->type() == olive::kTypeVideo) {
+    // Create default clip pipeline
+    if (c->type() == olive::kTypeVideo) {
+
+      NodeMedia* media_node = static_cast<NodeMedia*>(c->pipeline()->AddNode(kMediaInput));
+      NodeImageOutput* output_node = static_cast<NodeImageOutput*>(c->pipeline()->AddNode(kImageOutput));
+
+      if (olive::config.add_default_effects_to_clips) {
         // add default video effects
-        c->effects.append(olive::node_library[kTransformEffect]->Create(c.get()));
-      } else if (c->type() == olive::kTypeAudio) {
-        // add default audio effects
-        c->effects.append(olive::node_library[kVolumeEffect]->Create(c.get()));
-        c->effects.append(olive::node_library[kPanEffect]->Create(c.get()));
+        TransformEffect* transform_node = static_cast<TransformEffect*>(c->pipeline()->AddNode(kTransformEffect));
+        EffectRow::ConnectEdge(transform_node->matrix_output(), media_node->matrix_input());
       }
+
+      EffectRow::ConnectEdge(media_node->texture_output(), output_node->texture_input());
+    } else if (c->type() == olive::kTypeAudio) {
+      // add default audio effects
+      /* TODO address this
+      c->effects.append(olive::node_library[kVolumeEffect]->Create(c.get()));
+      c->effects.append(olive::node_library[kPanEffect]->Create(c.get()));
+      */
     }
   }
 

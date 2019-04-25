@@ -72,7 +72,8 @@ bool EffectRow::ShouldUseConnectedValue()
 
 QVariant EffectRow::GetConnectedValue(double timecode)
 {
-  // Default to using the connected node's output if there is one
+  Q_ASSERT(ShouldUseConnectedValue());
+
   node_edges_.first()->output()->GetParentEffect()->Process(timecode);
   return node_edges_.first()->output()->GetValueAt(timecode);
 }

@@ -6,7 +6,7 @@
 class NodeGraph
 {
 public:
-  NodeGraph();
+  NodeGraph(Clip* parent);
 
   /**
    * @brief Add a node to this graph
@@ -24,7 +24,7 @@ public:
    *
    * @param type
    */
-  void AddNode(NodeType type);
+  Node* AddNode(NodeType type);
 
   /**
    * @brief Process the graph
@@ -58,6 +58,7 @@ public:
 private:  
   QVector<NodePtr> nodes_;
   Node* output_node_;
+  Clip* parent_;
 };
 
 #endif // NODEGRAPH_H
