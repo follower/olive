@@ -94,7 +94,7 @@ QString TimecodeEffect::description()
   return tr("Render the media or sequence timecode on this clip.");
 }
 
-EffectType TimecodeEffect::subclip_type()
+NodeSubType TimecodeEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }

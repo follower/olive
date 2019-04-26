@@ -26,7 +26,7 @@
 #include <QFont>
 #include <QImage>
 
-class TextEffect : public SubClipNode {
+class TextEffect : public EffectNode {
   Q_OBJECT
 public:
   TextEffect(Clip* c);
@@ -35,7 +35,7 @@ public:
   virtual QString id() override;
   virtual QString category() override;
   virtual QString description() override;
-  virtual EffectType subclip_type() override;
+  virtual NodeSubType subclip_type() override;
   virtual olive::TrackType type() override;
   virtual NodePtr Create(Clip *c) override;
 

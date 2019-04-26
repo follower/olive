@@ -114,7 +114,7 @@ public:
   bool transition_tool_proc;
   Clip* transition_tool_open_clip;
   Clip* transition_tool_close_clip;
-  SubClipNodeType transition_tool_meta;
+  NodeType transition_tool_meta;
 
   // hand tool variables
   bool hand_moving;

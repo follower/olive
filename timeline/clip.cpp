@@ -35,6 +35,7 @@
 #include "global/clipboard.h"
 #include "global/debug.h"
 #include "global/timing.h"
+#include "nodes/nodes/nodeimageoutput.h"
 
 Clip::Clip(Track *s) :
   Node(s),
@@ -50,6 +51,12 @@ Clip::Clip(Track *s) :
   replaced(false),
   open_(false)
 {
+  if (s->type() == olive::kTypeVideo) {
+    texture_output_ = new NodeParameter(this, "tex_out", tr("Texture"), true, false);
+
+    end_node = AddChild(kImageOutput);
+    end_node->SetStatic(true);
+  }
 }
 
 NodePtr Clip::copy(Node* s) {
@@ -212,7 +219,7 @@ Clip::~Clip() {
 void Clip::Save(QXmlStreamWriter &stream)
 {
   stream.writeStartElement("clip");
-  stream.writeAttribute("id", QString::number(load_id));
+  stream.writeAttribute("id", QString::number(reinterpret_cast<quintptr>(this)));
 
   stream.writeAttribute("enabled", QString::number(IsEnabled()));
   stream.writeAttribute("name", name());
@@ -233,11 +240,11 @@ void Clip::Save(QXmlStreamWriter &stream)
     stream.writeAttribute("type", QString::number(media()->get_type()));
     switch (media()->get_type()) {
     case MEDIA_TYPE_FOOTAGE:
-      stream.writeAttribute("media", QString::number(media()->to_footage()->save_id));
+      stream.writeAttribute("media", QString::number(reinterpret_cast<quintptr>(media()->to_footage())));
       stream.writeAttribute("stream", QString::number(media_stream_index()));
       break;
     case MEDIA_TYPE_SEQUENCE:
-      stream.writeAttribute("sequence", QString::number(media()->to_sequence()->save_id));
+      stream.writeAttribute("sequence", QString::number(reinterpret_cast<quintptr>(media()->to_sequence().get())));
       break;
     }
   }
@@ -254,7 +261,7 @@ void Clip::Save(QXmlStreamWriter &stream)
   stream.writeStartElement("linked"); // linked
   for (int k=0;k<linked.size();k++) {
     stream.writeStartElement("link"); // link
-    stream.writeAttribute("id", QString::number(linked.at(k)->load_id));
+    stream.writeAttribute("id", QString::number(reinterpret_cast<quintptr>(linked.at(k))));
     stream.writeEndElement(); // link
   }
   stream.writeEndElement(); // linked
@@ -383,12 +390,12 @@ void Clip::set_speed(const ClipSpeed& d)
 
 Track *Clip::track()
 {
-  return static_cast<Track*>(parent());
+  return static_cast<Track*>(parent_);
 }
 
 void Clip::set_track(Track *t)
 {
-  setParent(t);
+  parent_ = t;
 }
 
 // timeline functions
@@ -482,7 +489,7 @@ void Clip::refactor_frame_rate(ComboAction* ca, double multiplier, bool change_t
                                   qRound(double(timeline_in_) * multiplier),
                                   qRound(double(timeline_out_) * multiplier),
                                   qRound(double(clip_in_) * multiplier),
-                                  track_);
+                                  track());
   }
 
   // move keyframes
@@ -566,6 +573,15 @@ void Clip::Close() {
 bool Clip::IsOpen()
 {
   return open_;
+}
+
+void Clip::Process(double time)
+{
+  end_node->Process((time - timeline_in() + clip_in())/track()->sequence()->frame_rate);
+
+  if (track()->type() == olive::kTypeVideo) {
+    texture_output_->SetValueAt(0, static_cast<NodeImageOutput*>(end_node)->texture());
+  }
 }
 
 ClipSpeed::ClipSpeed() :

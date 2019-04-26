@@ -54,7 +54,7 @@ QString VoidEffect::description()
   return QString();
 }
 
-EffectType VoidEffect::subclip_type()
+NodeSubType VoidEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }

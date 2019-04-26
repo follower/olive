@@ -35,7 +35,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::EffectField().
    */
-  ColorField(NodeIO* parent);
+  ColorField(NodeParameter* parent);
 
   /**
    * @brief Get the color value at a given timecode

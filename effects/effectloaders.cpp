@@ -83,6 +83,9 @@ void load_internal_effects() {
   olive::node_library[kLinearFadeTransition] = std::make_shared<LinearFadeTransition>(nullptr);
   olive::node_library[kExponentialFadeTransition] = std::make_shared<ExponentialFadeTransition>(nullptr);
   olive::node_library[kLogarithmicFadeTransition] = std::make_shared<LogarithmicFadeTransition>(nullptr);
+  olive::node_library[kTrackNode] = std::make_shared<Track>(nullptr);
+  olive::node_library[kClipNode] = std::make_shared<Clip>(nullptr);
+  olive::node_library[kSequenceNode] = std::make_shared<Sequence>(nullptr);
 }
 
 void load_shader_effects_worker(const QString& effects_path) {

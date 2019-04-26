@@ -41,7 +41,7 @@
 #include <QCoreApplication>
 
 Transition::Transition(Clip *c) :
-  Node(c),
+  EffectNode(c),
   secondary_clip(nullptr)
 {
   length_field = new DoubleInput(this, "length", tr("Length"), false, false);
@@ -49,16 +49,21 @@ Transition::Transition(Clip *c) :
   length_field->SetMinimum(1);
   length_field->SetDisplayType(LabelSlider::FrameNumber);
 
-  if (parent() != nullptr) {
-    length_field->SetFrameRate(parent()->track()->sequence() == nullptr ?
-                                 parent()->cached_frame_rate() : parent_clip->track()->sequence()->frame_rate);
+  if (parent_clip() != nullptr) {
+    length_field->SetFrameRate(parent_clip()->track()->sequence() == nullptr ?
+                                 parent_clip()->cached_frame_rate() : parent_clip()->track()->sequence()->frame_rate);
   }
 
   connect(length_field, SIGNAL(Changed()), this, SLOT(UpdateMaximumLength()));
 }
 
+Clip *Transition::parent_clip()
+{
+  return static_cast<Clip*>(parent_);
+}
+
 NodePtr Transition::copy(Node *c) {
-  NodePtr node = Node::copy(c);
+  NodePtr node = EffectNode::copy(c);
 
   static_cast<Transition*>(node.get())->set_length(get_true_length());
 
@@ -136,7 +141,7 @@ TransitionPtr Transition::CreateFromMeta(Clip* c, Clip* s) {
 void Transition::UpdateMaximumLength()
 {
   // Get the maximum area this transition can occupy on the clip
-  long maximum_length = GetMaximumEmptySpaceOnClip(parent_clip);
+  long maximum_length = GetMaximumEmptySpaceOnClip(parent_clip());
 
   // If this clip is a shared transition, get the maximum area this can occupy on the other clip too
   if (secondary_clip != nullptr) {

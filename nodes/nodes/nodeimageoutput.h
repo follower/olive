@@ -3,10 +3,10 @@
 
 #include "nodes/node.h"
 
-class NodeImageOutput : public SubClipNode
+class NodeImageOutput : public Node
 {
 public:
-  NodeImageOutput(Clip* c);
+  NodeImageOutput(Node* c);
 
   GLuint texture();
 
@@ -14,14 +14,14 @@ public:
   virtual QString id() override;
   virtual QString category() override;
   virtual QString description() override;
-  virtual EffectType subclip_type() override;
+  virtual NodeSubType subclip_type() override;
   virtual olive::TrackType type() override;
   virtual NodePtr Create(Node *c) override;
 
-  NodeIO* texture_input();
+  NodeParameter* texture_input();
 
 private:
-  NodeIO* input_texture_;
+  NodeParameter* input_texture_;
 };
 
 #endif // NODEIMAGEOUTPUT_H

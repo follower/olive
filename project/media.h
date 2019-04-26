@@ -83,8 +83,6 @@ public:
   QVector<Marker>& get_markers();
 
   bool root;
-  int temp_id;
-  int temp_id2;
 
 private:
   int type;

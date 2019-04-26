@@ -18,7 +18,7 @@
 
 ***/
 
-#include "nodeio.h"
+#include "nodeparameter.h"
 
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -37,7 +37,7 @@
 #include "ui/keyframenavigator.h"
 #include "ui/clickablelabel.h"
 
-NodeIO::NodeIO(Node *parent,
+NodeParameter::NodeParameter(Node *parent,
                      const QString &id,
                      const QString &name,
                      bool savable,
@@ -55,7 +55,7 @@ NodeIO::NodeIO(Node *parent,
   parent->AddRow(this);
 }
 
-void NodeIO::AddField(EffectField *field)
+void NodeParameter::AddField(EffectField *field)
 {
   field->setParent(this);
 
@@ -65,12 +65,12 @@ void NodeIO::AddField(EffectField *field)
   fields_.append(field);
 }
 
-bool NodeIO::ShouldUseConnectedValue()
+bool NodeParameter::ShouldUseConnectedValue()
 {
   return (!node_edges_.isEmpty() && IsNodeInput());
 }
 
-QVariant NodeIO::GetConnectedValue(double timecode)
+QVariant NodeParameter::GetConnectedValue(double timecode)
 {
   Q_ASSERT(ShouldUseConnectedValue());
 
@@ -78,21 +78,21 @@ QVariant NodeIO::GetConnectedValue(double timecode)
   return node_edges_.first()->output()->GetValueAt(timecode);
 }
 
-void NodeIO::AddAcceptedNodeInput(olive::nodes::DataType type)
+void NodeParameter::AddAcceptedNodeInput(olive::nodes::DataType type)
 {
   Q_ASSERT(output_type_ == olive::nodes::kInvalid);
 
   accepted_inputs_.append(type);
 }
 
-void NodeIO::ConnectEdge(NodeIO *output, NodeIO *input)
+void NodeParameter::ConnectEdge(NodeParameter *output, NodeParameter *input)
 {
   // Make sure one is an output and one is an input
   Q_ASSERT(output->IsNodeInput() != input->IsNodeInput());
 
   // Swap them if necessary
   if (input->IsNodeOutput()) {
-    NodeIO* temp = output;
+    NodeParameter* temp = output;
     output = input;
     input = temp;
   }
@@ -110,10 +110,10 @@ void NodeIO::ConnectEdge(NodeIO *output, NodeIO *input)
   emit output->EdgesChanged();
 }
 
-void NodeIO::DisconnectEdge(NodeEdgePtr edge)
+void NodeParameter::DisconnectEdge(NodeEdgePtr edge)
 {
-  NodeIO* output = edge->output();
-  NodeIO* input = edge->input();
+  NodeParameter* output = edge->output();
+  NodeParameter* input = edge->input();
 
   output->node_edges_.removeAll(edge);
   input->node_edges_.removeAll(edge);
@@ -121,33 +121,33 @@ void NodeIO::DisconnectEdge(NodeEdgePtr edge)
   emit output->EdgesChanged();
 }
 
-QVector<NodeEdgePtr> NodeIO::edges()
+QVector<NodeEdgePtr> NodeParameter::edges()
 {
   return node_edges_;
 }
 
-bool NodeIO::IsKeyframing() {
+bool NodeParameter::IsKeyframing() {
   return keyframing_;
 }
 
-void NodeIO::SetKeyframingInternal(bool b) {
+void NodeParameter::SetKeyframingInternal(bool b) {
   if (GetParentEffect()->subclip_type() != EFFECT_TYPE_TRANSITION) {
     keyframing_ = b;
     emit KeyframingSetChanged(keyframing_);
   }
 }
 
-bool NodeIO::IsSavable()
+bool NodeParameter::IsSavable()
 {
   return savable_;
 }
 
-bool NodeIO::IsKeyframable()
+bool NodeParameter::IsKeyframable()
 {
   return keyframable_;
 }
 
-QVariant NodeIO::GetValueAt(double timecode)
+QVariant NodeParameter::GetValueAt(double timecode)
 {
   if (ShouldUseConnectedValue()) {
 
@@ -163,7 +163,7 @@ QVariant NodeIO::GetValueAt(double timecode)
   }
 }
 
-void NodeIO::SetValueAt(double timecode, const QVariant &value)
+void NodeParameter::SetValueAt(double timecode, const QVariant &value)
 {
   if (FieldCount() == 1) {
     Field(0)->SetValueAt(timecode, value);
@@ -172,21 +172,21 @@ void NodeIO::SetValueAt(double timecode, const QVariant &value)
   }
 }
 
-void NodeIO::SetEnabled(bool enabled)
+void NodeParameter::SetEnabled(bool enabled)
 {
   for (int i=0;i<FieldCount();i++) {
     Field(i)->SetEnabled(enabled);
   }
 }
 
-void NodeIO::SetOutputDataType(olive::nodes::DataType type)
+void NodeParameter::SetOutputDataType(olive::nodes::DataType type)
 {
   Q_ASSERT(accepted_inputs_.isEmpty());
 
   output_type_ = type;
 }
 
-bool NodeIO::CanAcceptDataType(olive::nodes::DataType type)
+bool NodeParameter::CanAcceptDataType(olive::nodes::DataType type)
 {
   if (!IsNodeInput()) {
     return false;
@@ -195,22 +195,22 @@ bool NodeIO::CanAcceptDataType(olive::nodes::DataType type)
   return accepted_inputs_.contains(type);
 }
 
-olive::nodes::DataType NodeIO::OutputDataType()
+olive::nodes::DataType NodeParameter::OutputDataType()
 {
   return output_type_;
 }
 
-bool NodeIO::IsNodeInput()
+bool NodeParameter::IsNodeInput()
 {
   return !accepted_inputs_.isEmpty();
 }
 
-bool NodeIO::IsNodeOutput()
+bool NodeParameter::IsNodeOutput()
 {
   return output_type_ != olive::nodes::kInvalid;
 }
 
-void NodeIO::SetKeyframingEnabled(bool enabled) {
+void NodeParameter::SetKeyframingEnabled(bool enabled) {
   if (enabled == keyframing_) {
     return;
   }
@@ -262,7 +262,8 @@ void NodeIO::SetKeyframingEnabled(bool enabled) {
   }
 }
 
-void NodeIO::GoToPreviousKeyframe() {
+void NodeParameter::GoToPreviousKeyframe() {
+  /* TODO address this
   long key = LONG_MIN;
   Clip* c = GetParentEffect()->parent_clip;
   long sequence_playhead = c->track()->sequence()->playhead;
@@ -288,9 +289,11 @@ void NodeIO::GoToPreviousKeyframe() {
 
   // If we found a keyframe less than the playhead, jump to it
   if (key != LONG_MIN) panel_sequence_viewer->seek(key);
+  */
 }
 
-void NodeIO::ToggleKeyframe() {
+void NodeParameter::ToggleKeyframe() {
+  /* TODO address this
   Clip* c = GetParentEffect()->parent_clip;
   long sequence_playhead = c->track()->sequence()->playhead;
 
@@ -358,9 +361,11 @@ void NodeIO::ToggleKeyframe() {
 
   olive::undo_stack.push(ca);
   update_ui(false);
+  */
 }
 
-void NodeIO::GoToNextKeyframe() {
+void NodeParameter::GoToNextKeyframe() {
+  /* TODO address this
   long key = LONG_MAX;
   Clip* c = GetParentEffect()->parent_clip;
   for (int i=0;i<FieldCount();i++) {
@@ -373,13 +378,15 @@ void NodeIO::GoToNextKeyframe() {
     }
   }
   if (key != LONG_MAX) panel_sequence_viewer->seek(key);
+  */
 }
 
-void NodeIO::FocusRow() {
+void NodeParameter::FocusRow() {
   panel_graph_editor->set_row(this);
 }
 
-void NodeIO::SetKeyframeOnAllFields(ComboAction* ca) {
+void NodeParameter::SetKeyframeOnAllFields(ComboAction* ca) {
+  /* TODO address this
   for (int i=0;i<FieldCount();i++) {
     EffectField* field = Field(i);
 
@@ -392,21 +399,22 @@ void NodeIO::SetKeyframeOnAllFields(ComboAction* ca) {
   }
 
   panel_effect_controls->update_keyframes();
+  */
 }
 
-Node *NodeIO::GetParentEffect()
+Node *NodeParameter::GetParentEffect()
 {
   return static_cast<Node*>(parent());
 }
 
-const QString &NodeIO::name() {
+const QString &NodeParameter::name() {
   return name_;
 }
 
-EffectField* NodeIO::Field(int i) {
+EffectField* NodeParameter::Field(int i) {
   return fields_.at(i);
 }
 
-int NodeIO::FieldCount() {
+int NodeParameter::FieldCount() {
   return fields_.size();
 }

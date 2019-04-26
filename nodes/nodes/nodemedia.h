@@ -8,7 +8,7 @@
 #include "decoders/decoder.h"
 #include "rendering/memorycache.h"
 
-class NodeMedia : public SubClipNode
+class NodeMedia : public EffectNode
 {
 public:
   NodeMedia(Clip *c);
@@ -24,18 +24,18 @@ public:
   virtual QString id() override;
   virtual QString category() override;
   virtual QString description() override;
-  virtual EffectType subclip_type() override;
+  virtual NodeSubType subclip_type() override;
   virtual olive::TrackType type() override;
   virtual NodePtr Create(Node *c) override;
 
-  NodeIO* matrix_input();
-  NodeIO* texture_output();
+  NodeParameter* matrix_input();
+  NodeParameter* texture_output();
 
 private:
   Decoder* decoder_;
 
-  NodeIO* matrix_input_;
-  NodeIO* texture_output_;
+  NodeParameter* matrix_input_;
+  NodeParameter* texture_output_;
 
   GLuint texture_;
   bool texture_is_allocated_;

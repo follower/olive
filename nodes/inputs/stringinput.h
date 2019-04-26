@@ -1,9 +1,9 @@
 #ifndef STRINGINPUT_H
 #define STRINGINPUT_H
 
-#include "effects/nodeio.h"
+#include "nodes/nodeparameter.h"
 
-class StringInput : public NodeIO
+class StringInput : public NodeParameter
 {
   Q_OBJECT
 public:

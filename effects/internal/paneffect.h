@@ -23,7 +23,7 @@
 
 #include "nodes/node.h"
 
-class PanEffect : public SubClipNode {
+class PanEffect : public EffectNode {
   Q_OBJECT
 public:
   PanEffect(Clip* c);
@@ -31,7 +31,7 @@ public:
   virtual QString name() override;
   virtual QString id() override;
   virtual QString description() override;
-  virtual EffectType subclip_type() override;
+  virtual NodeSubType subclip_type() override;
   virtual olive::TrackType type() override;
   virtual NodePtr Create(Clip *c) override;
 

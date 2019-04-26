@@ -46,7 +46,7 @@ private:
   void destroy();
 };
 
-class VSTHost : public SubClipNode {
+class VSTHost : public EffectNode {
   Q_OBJECT
 public:
   VSTHost(Clip* c);
@@ -55,7 +55,7 @@ public:
   virtual QString name() override;
   virtual QString id() override;
   virtual QString description() override;
-  virtual EffectType subclip_type() override;
+  virtual NodeSubType subclip_type() override;
   virtual olive::TrackType type() override;
   virtual NodePtr Create(Clip *c) override;
 

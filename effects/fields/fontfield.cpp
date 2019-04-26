@@ -29,7 +29,7 @@
 
 // NOTE/TODO: This shares a lot of similarity with ComboInput, and could probably be a derived class of it
 
-FontField::FontField(NodeIO* parent) :
+FontField::FontField(NodeParameter* parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_FONT)
 {
   font_list = QFontDatabase().families();

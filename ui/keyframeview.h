@@ -28,7 +28,7 @@
 
 class Clip;
 class Node;
-class NodeIO;
+class NodeParameter;
 class EffectField;
 class TimelineHeader;
 
@@ -57,7 +57,7 @@ private:
   QVector<EffectField*> selected_fields;
   QVector<int> selected_keyframes;
   QVector<int> rowY;
-  QVector<NodeIO*> rows;
+  QVector<NodeParameter*> rows;
   QVector<long> old_key_vals;
   void mousePressEvent(QMouseEvent* event);
   void mouseMoveEvent(QMouseEvent* event);

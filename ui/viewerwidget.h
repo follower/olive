@@ -83,7 +83,7 @@ private:
   bool dragging;
   void seek_from_click(int x);
   QMatrix4x4 get_matrix();
-  SubClipNode* gizmos;
+  EffectNode* gizmos;
   int drag_start_x;
   int drag_start_y;
   int gizmo_x_mvmt;

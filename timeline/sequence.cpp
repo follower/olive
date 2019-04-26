@@ -27,9 +27,9 @@
 #include "global/clipboard.h"
 #include "global/config.h"
 #include "global/debug.h"
-
 #include "effects/internal/transformeffect.h"
 #include "nodes/nodes.h"
+#include "videotrack.h"
 
 Sequence::Sequence() :
   Node(nullptr),
@@ -39,17 +39,17 @@ Sequence::Sequence() :
   workarea_out(0),
   wrapper_sequence(false)
 {
-  // Set up tracks
-  track_lists_.resize(olive::kTypeCount);
+  // Create texture input param
+  texture_input_ = new NodeParameter(this, "texture_in", "Texture", true, false);
 
-  for (int i=0;i<track_lists_.size();i++) {
-    track_lists_[i] = new TrackList(this, static_cast<olive::TrackType>(i));
-  }
+  // Create one track and connect it to the texture input
+  VideoTrack* initial_video_track = static_cast<VideoTrack*>(AddChild(kVideoTrackNode));
+  NodeParameter::ConnectEdge(initial_video_track->texture_output(), texture_input_);
 }
 
 SequencePtr Sequence::copy() {
   SequencePtr s = std::make_shared<Sequence>();
-  s->name = QCoreApplication::translate("Sequence", "%1 (copy)").arg(name);
+  s->SetName(QCoreApplication::translate("Sequence", "%1 (copy)").arg(name()));
   s->width = width;
   s->height = height;
   s->frame_rate = frame_rate;
@@ -57,9 +57,11 @@ SequencePtr Sequence::copy() {
   s->audio_layout = audio_layout;
 
   // deep copy all of the sequence's clips
+  /* TODO address this
   for (int i=0;i<track_lists_.size();i++) {
     s->track_lists_[i] = track_lists_.at(i)->copy(s.get());
   }
+  */
 
   // copy all of the sequence's markers
   s->markers = markers;
@@ -69,6 +71,7 @@ SequencePtr Sequence::copy() {
 
 void Sequence::Save(QXmlStreamWriter &stream)
 {
+  /* TODO address this
   // Provide unique IDs for each Clip
   QVector<Clip*> all_clips = GetAllClips();
   for (int i=0;i<all_clips.size();i++) {
@@ -93,9 +96,11 @@ void Sequence::Save(QXmlStreamWriter &stream)
   QVector<TransitionPtr> transition_save_cache;
   QVector<int> transition_clip_save_cache;
 
+
   for (int j=0;j<track_lists_.size();j++) {
     track_lists_.at(j)->Save(stream);
   }
+  */
 
   for (int j=0;j<markers.size();j++) {
     markers.at(j).Save(stream);
@@ -114,22 +119,15 @@ void Sequence::SetName(const QString &n)
   name_ = n;
 }
 
-void Sequence::RenderVideoFrame(long frame)
-{
-  track_lists_.at(olive::kTypeVideo);
-}
-
 long Sequence::GetEndFrame() {
   long end_frame = 0;
 
-  for (int j=0;j<track_lists_.size();j++) {
+  for (int i=0;i<children_.size();i++) {
+    Track* t = dynamic_cast<Track*>(children_.at(i).get());
 
-    TrackList* track_list = track_lists_.at(j);
-
-    for (int i=0;i<track_list->TrackCount();i++) {
-      end_frame = qMax(track_list->TrackAt(i)->GetEndFrame(), end_frame);
+    if (t != nullptr) {
+      end_frame = qMax(t->GetEndFrame(), end_frame);
     }
-
   }
 
   return end_frame;
@@ -139,22 +137,15 @@ QVector<Clip *> Sequence::GetAllClips()
 {
   QVector<Clip*> all_clips;
 
-  for (int j=0;j<track_lists_.size();j++) {
+  for (int i=0;i<children_.size();i++) {
+    Track* t = dynamic_cast<Track*>(children_.at(i).get());
 
-    TrackList* track_list = track_lists_.at(j);
-
-    for (int i=0;i<track_list->TrackCount();i++) {
-      all_clips.append(track_list->TrackAt(i)->GetAllClips());
+    if (t != nullptr) {
+      all_clips.append(t->GetAllClips());
     }
-
   }
 
   return all_clips;
-}
-
-TrackList *Sequence::GetTrackList(olive::TrackType type)
-{
-  return track_lists_.at(type);
 }
 
 void Sequence::Close()
@@ -164,6 +155,11 @@ void Sequence::Close()
   for (int i=0;i<all_clips.size();i++) {
     all_clips.at(i)->Close();
   }
+}
+
+GLuint Sequence::GetTexture()
+{
+  return texture_input_->GetValueAt(0).toUInt();
 }
 
 void Sequence::RefreshClipsUsingMedia(Media *m) {
@@ -185,12 +181,10 @@ QVector<Clip *> Sequence::SelectedClips(bool containing)
 {
   QVector<Clip*> selected_clips;
 
-  for (int i=0;i<track_lists_.size();i++) {
-    TrackList* tl = track_lists_.at(i);
+  for (int i=0;i<children_.size();i++) {
+    Track* t = dynamic_cast<Track*>(children_.at(i).get());
 
-    for (int j=0;j<tl->TrackCount();j++) {
-      Track* t = tl->TrackAt(j);
-
+    if (t != nullptr) {
       selected_clips.append(t->GetSelectedClips(containing));
     }
   }
@@ -230,7 +224,7 @@ void Sequence::AddClipsFromGhosts(ComboAction* ca, const QVector<Ghost>& ghosts)
       // sequence (red?ish?)
       c->set_color(192, 128, 128);
 
-      c->set_name(c->media()->to_sequence()->name);
+      c->set_name(c->media()->to_sequence()->name());
     }
     c->refresh();
     added_clips.append(c);
@@ -253,17 +247,17 @@ void Sequence::AddClipsFromGhosts(ComboAction* ca, const QVector<Ghost>& ghosts)
 
       std::shared_ptr<NodeMedia> media_node = std::make_shared<NodeMedia>(c);
       std::shared_ptr<NodeImageOutput> output_node = std::make_shared<NodeImageOutput>(c);
-      c->pipeline()->AddNode(media_node);
-      c->pipeline()->AddNode(output_node);
+      c->AddChild(media_node);
+      c->AddChild(output_node);
 
       if (olive::config.add_default_effects_to_clips) {
         // add default video effects
         std::shared_ptr<TransformEffect> transform_node = std::make_shared<TransformEffect>(c);
-        c->pipeline()->AddNode(transform_node);
-        NodeIO::ConnectEdge(transform_node->matrix_output(), media_node->matrix_input());
+        c->AddChild(transform_node);
+        NodeParameter::ConnectEdge(transform_node->matrix_output(), media_node->matrix_input());
       }
 
-      NodeIO::ConnectEdge(media_node->texture_output(), output_node->texture_input());
+      NodeParameter::ConnectEdge(media_node->texture_output(), output_node->texture_input());
 
 
     } else if (c->type() == olive::kTypeAudio) {
@@ -305,7 +299,7 @@ void Sequence::MoveClip(Clip *c, ComboAction *ca, long iin, long iout, long icli
 
     if (c->closing_transition != nullptr
         && c->closing_transition->secondary_clip != nullptr
-        && c->closing_transition->parent_clip->timeline_in() != iout) {
+        && c->closing_transition->parent_clip()->timeline_in() != iout) {
       // separate transition
       ca->append(new SetPointer(reinterpret_cast<void**>(&c->closing_transition->secondary_clip), nullptr));
       ca->append(new AddTransitionCommand(nullptr,
@@ -373,15 +367,12 @@ void Sequence::EditToPoint(bool in, bool ripple)
         }
 
         if (in_point >= 0) {
+          for (int i=0;i<children_.size();i++) {
+            Track* t = dynamic_cast<Track*>(children_.at(i).get());
 
-          for (int i=0;i<track_lists_.size();i++) {
-
-            TrackList* tl = track_lists_.at(i);
-
-            for (int j=0;j<tl->TrackCount();j++) {
-              areas.append(Selection(in_point, in_point+1, tl->TrackAt(j)));
+            if (t != nullptr) {
+              areas.append(Selection(in_point, in_point+1, t));
             }
-
           }
 
           // trim and move clips around the in point
@@ -416,12 +407,11 @@ void Sequence::EditToPoint(bool in, bool ripple)
 
       } else {
 
-        for (int i=0;i<track_lists_.size();i++) {
+        for (int i=0;i<children_.size();i++) {
+          Track* t = dynamic_cast<Track*>(children_.at(i).get());
 
-          TrackList* tl = track_lists_.at(i);
-
-          for (int j=0;j<tl->TrackCount();j++) {
-            areas.append(Selection(area_in, area_out, tl->TrackAt(j)));
+          if (t != nullptr) {
+            areas.append(Selection(area_in, area_out, t));
           }
 
         }
@@ -508,12 +498,11 @@ void Sequence::DeleteInToOut(bool ripple)
 
     QVector<Selection> areas_to_delete;
 
-    for (int i=0;i<track_lists_.size();i++) {
+    for (int i=0;i<children_.size();i++) {
+      Track* t = dynamic_cast<Track*>(children_.at(i).get());
 
-      TrackList* tl = track_lists_.at(i);
-
-      for (int j=0;j<tl->TrackCount();j++) {
-        areas_to_delete.append(Selection(workarea_in, workarea_out, tl->TrackAt(j)));
+      if (t != nullptr) {
+        areas_to_delete.append(Selection(workarea_in, workarea_out, t));
       }
 
     }
@@ -568,12 +557,10 @@ void Sequence::Ripple(ComboAction *ca, long point, long length, const QVector<Cl
 
 void Sequence::ChangeTrackHeightsRelatively(int diff)
 {
-  for (int i=0;i<track_lists_.size();i++) {
-    TrackList* tl = track_lists_.at(i);
+  for (int i=0;i<children_.size();i++) {
+    Track* t = dynamic_cast<Track*>(children_.at(i).get());
 
-    for (int j=0;j<tl->TrackCount();j++) {
-      Track* t = tl->TrackAt(j);
-
+    if (t != nullptr) {
       t->set_height(t->height() + diff);
     }
   }
@@ -645,13 +632,10 @@ void Sequence::Split()
   // If we weren't able to split any selected clips above, see if there are arbitrary selections to split
   if (!split_occurred) {
 
-    TrackList* track_list;
-    Track* track;
+    for (int i=0;i<children_.size();i++) {
+      Track* track = dynamic_cast<Track*>(children_.at(i).get());
 
-    foreach (track_list, track_lists_) {
-
-      QVector<Track*> tracks = track_list->tracks();
-      foreach (track, tracks) {
+      if (track != nullptr) {
 
         QVector<Selection> track_selections = track->Selections();
         QVector<long> split_positions;
@@ -891,11 +875,10 @@ void Sequence::RippleDeleteEmptySpace(ComboAction* ca, Track* track, long point)
 
 void Sequence::RippleDeleteArea(ComboAction* ca, long ripple_point, long ripple_length) {
 
-  for (int i=0;i<track_lists_.size();i++) {
-    TrackList* tl = track_lists_.at(i);
+  for (int i=0;i<children_.size();i++) {
+    Track* t = dynamic_cast<Track*>(children_.at(i).get());
 
-    for (int j=0;j<tl->TrackCount();j++) {
-      Track* t = tl->TrackAt(j);
+    if (t != nullptr) {
 
       // We've already tested `track`, so we don't need to test it again
       long first_in_point_after_point = LONG_MAX;
@@ -941,6 +924,7 @@ void Sequence::RippleDeleteArea(ComboAction* ca, long ripple_point, long ripple_
 
 Node *Sequence::GetSelectedGizmo()
 {
+  /* TODO address this
   Node* gizmo_ptr = nullptr;
 
   QVector<Clip*> clips = GetAllClips();
@@ -979,37 +963,39 @@ Node *Sequence::GetSelectedGizmo()
   }
 
   return gizmo_ptr;
+  */
+  return nullptr;
 }
 
 void Sequence::SelectAll()
 {
-  for (int j=0;j<track_lists_.size();j++) {
-    TrackList* tl = track_lists_.at(j);
+  for (int i=0;i<children_.size();i++) {
+    Track* t = dynamic_cast<Track*>(children_.at(i).get());
 
-    for (int i=0;i<tl->TrackCount();i++) {
-      tl->TrackAt(i)->SelectAll();
+    if (t != nullptr) {
+      t->SelectAll();
     }
   }
 }
 
 void Sequence::SelectAtPlayhead()
 {
-  for (int j=0;j<track_lists_.size();j++) {
-    TrackList* tl = track_lists_.at(j);
+  for (int i=0;i<children_.size();i++) {
+    Track* t = dynamic_cast<Track*>(children_.at(i).get());
 
-    for (int i=0;i<tl->TrackCount();i++) {
-      tl->TrackAt(i)->SelectAtPoint(playhead);
+    if (t != nullptr) {
+      t->SelectAtPoint(playhead);
     }
   }
 }
 
 void Sequence::ClearSelections()
 {
-  for (int j=0;j<track_lists_.size();j++) {
-    TrackList* tl = track_lists_.at(j);
+  for (int i=0;i<children_.size();i++) {
+    Track* t = dynamic_cast<Track*>(children_.at(i).get());
 
-    for (int i=0;i<tl->TrackCount();i++) {
-      tl->TrackAt(i)->ClearSelections();
+    if (t != nullptr) {
+      t->ClearSelections();
     }
   }
 }
@@ -1041,7 +1027,7 @@ void Sequence::AddSelectionsToClipboard(bool delete_originals)
         // If so, we'll be copying this clip
         original_clips.append(c);
 
-        ClipPtr copy = c->copy(nullptr);
+        ClipPtr copy = std::static_pointer_cast<Clip>(c->copy(nullptr));
 
         // If we only copied part of this clip, adjust the copy so it's only that part of the clip
         if (copy->timeline_in() < s.in()) {
@@ -1091,11 +1077,11 @@ QVector<Selection> Sequence::Selections()
 {
   QVector<Selection> selections;
 
-  for (int j=0;j<track_lists_.size();j++) {
-    TrackList* tl = track_lists_.at(j);
+  for (int i=0;i<children_.size();i++) {
+    Track* t = dynamic_cast<Track*>(children_.at(i).get());
 
-    for (int i=0;i<tl->TrackCount();i++) {
-      selections.append(tl->TrackAt(i)->Selections());
+    if (t != nullptr) {
+      selections.append(t->Selections());
     }
   }
 
@@ -1134,7 +1120,7 @@ ClipPtr Sequence::SplitClip(ComboAction *ca, bool transitions, Clip* pre, long f
   if (pre->timeline_in() < frame && pre->timeline_out() > frame) {
     // duplicate clip without duplicating its transitions, we'll restore them later
 
-    ClipPtr post = pre->copy(pre->track());
+    ClipPtr post = std::static_pointer_cast<Clip>(pre->copy(pre->track()));
 
     long new_clip_length = frame - pre->timeline_in();
 
@@ -1155,8 +1141,8 @@ ClipPtr Sequence::SplitClip(ComboAction *ca, bool transitions, Clip* pre, long f
         ca->append(new SetPointer(reinterpret_cast<void**>(&pre->closing_transition), nullptr));
 
         // and set the transition's reference to the post clip
-        if (post->closing_transition->parent_clip == pre) {
-          ca->append(new SetPointer(reinterpret_cast<void**>(&post->closing_transition->parent_clip), post.get()));
+        if (post->closing_transition->parent_clip() == pre) {
+          ca->append(new SetPointer(reinterpret_cast<void**>(&post->closing_transition->parent_clip()), post.get()));
         }
         if (post->closing_transition->secondary_clip == pre) {
           ca->append(new SetPointer(reinterpret_cast<void**>(&post->closing_transition->secondary_clip), post.get()));

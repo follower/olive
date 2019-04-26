@@ -36,7 +36,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::EffectField().
    */
-  FileField(NodeIO* parent);
+  FileField(NodeParameter* parent);
 
   /**
    * @brief Get the filename at the given timecode

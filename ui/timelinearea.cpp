@@ -80,11 +80,6 @@ void TimelineArea::SetAlignment(olive::timeline::Alignment alignment)
   RefreshLabels();
 }
 
-TrackList *TimelineArea::track_list()
-{
-  return track_list_;
-}
-
 TimelineView *TimelineArea::view()
 {
   return view_;

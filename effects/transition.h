@@ -30,16 +30,19 @@ enum TransitionType {
   kTransitionClosing
 };
 
+class Clip;
+
 class Transition;
 using TransitionPtr = std::shared_ptr<Transition>;
 
-class Transition : public SubClipNode {
+class Transition : public EffectNode {
   Q_OBJECT
 public:
   Transition(Clip* c);
 
   virtual NodePtr copy(Node* c) override;
 
+  Clip* parent_clip();
   Clip* secondary_clip;
 
   virtual void save(QXmlStreamWriter& stream) override;

@@ -44,18 +44,12 @@
 #include "rendering/qopenglshaderprogramptr.h"
 #include "inputs.h"
 #include "effects/effectgizmo.h"
-#include "nodegraph.h"
+#include "nodeparameter.h"
 
 class EffectGizmo;
 class KeyframeDataChange;
 
-class Clip;
-using ClipPtr = std::shared_ptr<Clip>;
-
-class Node;
-using NodePtr = std::shared_ptr<Node>;
-
-enum SubClipNodeType {
+enum NodeType {
   kTransformEffect,
   kTextInput,
   kSolidInput,
@@ -77,12 +71,17 @@ enum SubClipNodeType {
   kLinearFadeTransition,
   kExponentialFadeTransition,
   kLogarithmicFadeTransition,
+  kVideoTrackNode,
+  kAudioTrackNode,
+  kVideoClipNode,
+  kAudioClipNode,
+  kSequenceNode,
   kInvalidNode
 };
 
 double log_volume(double linear);
 
-enum EffectType {
+enum NodeSubType {
   EFFECT_TYPE_INVALID,
   EFFECT_TYPE_EFFECT,
   EFFECT_TYPE_TRANSITION
@@ -110,6 +109,9 @@ struct GLTextureCoords {
   float opacity;
 };
 
+class Node;
+using NodePtr = std::shared_ptr<Node>;
+
 class Node : public QObject {
   Q_OBJECT
 public:
@@ -117,19 +119,28 @@ public:
   virtual ~Node();
 
   virtual QString name() = 0;
+  virtual QString id() = 0;
+  virtual NodePtr Create(Node *c) = 0;
+  virtual NodeSubType subclip_type();
   virtual olive::TrackType type();
+  virtual QString category();
+  virtual QString description() = 0;
 
   virtual void Open() = 0;
   virtual void Close() = 0;
   virtual bool IsOpen() = 0;
   virtual void Process(double time) = 0;
 
-  void AddRow(NodeIO* row);
-  int IndexOfRow(NodeIO* row);
-  NodeIO* row(int i);
-  int RowCount();
+  bool IsStatic();
+  void SetStatic(bool s);
 
-  NodeGraph* pipeline();
+  virtual void AddChild(NodePtr child);
+  virtual Node *AddChild(NodeType type);
+
+  void AddRow(NodeParameter* row);
+  int IndexOfRow(NodeParameter* row);
+  NodeParameter* row(int i);
+  int RowCount();
 
   QVector<NodeEdgePtr> GetAllEdges();
 
@@ -138,8 +149,8 @@ public:
 
   virtual void refresh();
 
-  virtual NodePtr copy(Node* c);
-  void copy_field_keyframes(NodePtr e);
+  virtual NodePtr copy(Node* c) = 0;
+  void copy_field_keyframes(Node* e);
 
   virtual void load(QXmlStreamReader& stream);
   virtual void custom_load(QXmlStreamReader& stream);
@@ -181,33 +192,24 @@ private slots:
   void load_from_file();
 protected:
   QOpenGLContext* ctx();
+  Node* parent_;
+  QVector<NodePtr> children_;
 
 private:
-  QVector<NodeIO*> rows;
-  QVector<EffectGizmo*> gizmos;
+  QVector<NodeParameter*> rows;
 
   bool enabled_;
   bool expanded_;
+  bool static_;
 
   QVector<KeyframeDataChange*> gizmo_dragging_actions_;
 
   QPointF pos_;
-
-  NodeGraph pipeline_;
 };
 
-class SubClipNode : public Node {
+class EffectNode : public Node {
 public:
-  SubClipNode(Clip* c);
-
-  Clip* GetClipParent();
-
-  virtual EffectType subclip_type() = 0;
-  virtual QString id() = 0;
-  virtual QString category();
-  virtual QString description() = 0;
-  virtual bool IsCreatable();
-  virtual NodePtr Create(Node *c) = 0;
+  EffectNode(Node* c);
 
   EffectGizmo* add_gizmo(int subclip_type);
   EffectGizmo* gizmo(int i);
@@ -240,11 +242,13 @@ public:
    * The current clip time in frames
    */
   long NowInFrames();
+
+private:
+  QVector<EffectGizmo*> gizmos;
 };
-using SubClipNodePtr = std::shared_ptr<SubClipNode>;
 
 namespace olive {
-  extern QVector<SubClipNodePtr> node_library;
+  extern QVector<NodePtr> node_library;
 }
 
 #endif // EFFECT_H

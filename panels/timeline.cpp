@@ -275,7 +275,7 @@ void Timeline::add_transition() {
   for (int i=0;i<selected_clips.size();i++) {
     Clip* c = selected_clips.at(i);
 
-    SubClipNodeType transition_to_add = (c->type() == olive::kTypeVideo) ? kCrossDissolveTransition
+    NodeType transition_to_add = (c->type() == olive::kTypeVideo) ? kCrossDissolveTransition
                                                                   : kLinearFadeTransition;
 
     if (c->opening_transition == nullptr) {
@@ -887,7 +887,7 @@ void Timeline::transition_tool_click() {
   transition_menu.addAction(tr("Audio Transitions"))->setEnabled(false);
 
   for (int i=0;i<olive::node_library.size();i++) {
-    SubClipNodePtr node = olive::node_library.at(i);
+    NodePtr node = olive::node_library.at(i);
     if (node != nullptr && node->subclip_type() == EFFECT_TYPE_TRANSITION && node->type() == olive::kTypeAudio) {
       QAction* a = transition_menu.addAction(node->name());
       a->setData(i);
@@ -902,7 +902,7 @@ void Timeline::transition_tool_click() {
 }
 
 void Timeline::transition_menu_select(QAction* a) {
-  transition_tool_meta = static_cast<SubClipNodeType>(a->data().toInt());
+  transition_tool_meta = static_cast<NodeType>(a->data().toInt());
   timeline_area->setCursor(Qt::CrossCursor);
   olive::timeline::current_tool = olive::timeline::TIMELINE_TOOL_TRANSITION;
   toolTransitionButton->setChecked(true);

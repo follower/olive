@@ -135,7 +135,7 @@ void NodeUI::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
       // If this node is the edge's "input", then we'll drag that instead of creating a new edge
 
-      NodeIO* other_row = e->output();
+      NodeParameter* other_row = e->output();
 
       Node* other_node = other_row->GetParentEffect();
 
@@ -149,7 +149,7 @@ void NodeUI::mousePressEvent(QGraphicsSceneMouseEvent *event)
       drag_source_ = other_row;
 
       // Disconnect the existing edge, and treat our dynamic one as an edit of that one
-      NodeIO::DisconnectEdge(edges.last());
+      NodeParameter::DisconnectEdge(edges.last());
 
 
 
@@ -202,15 +202,15 @@ void NodeUI::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
             // If so, see if the two rows can be connected
 
-            NodeIO* local_row = drag_source_;
-            NodeIO* remote_row = mouse_node->GetRowFromIndex(i);
+            NodeParameter* local_row = drag_source_;
+            NodeParameter* remote_row = mouse_node->GetRowFromIndex(i);
 
             // Ensure one is an input and one is an output and whether their data types are compatible
             if (local_row->IsNodeInput() != remote_row->IsNodeInput()) {
 
               // Determine which row is the input and which row is the output
-              NodeIO* input_row = (local_row->IsNodeInput()) ? local_row : remote_row;
-              NodeIO* output_row = (local_row->IsNodeInput()) ? remote_row : local_row;
+              NodeParameter* input_row = (local_row->IsNodeInput()) ? local_row : remote_row;
+              NodeParameter* output_row = (local_row->IsNodeInput()) ? remote_row : local_row;
 
               if (input_row->CanAcceptDataType(output_row->OutputDataType())) {
                 // This is a valid connection
@@ -257,7 +257,7 @@ void NodeUI::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     event->accept();
 
     if (drag_destination_ != nullptr) {
-      NodeIO::ConnectEdge(drag_source_, drag_destination_);
+      NodeParameter::ConnectEdge(drag_source_, drag_destination_);
     }
   } else {
     QGraphicsItem::mouseReleaseEvent(event);
@@ -273,7 +273,7 @@ QVector<QRectF> NodeUI::GetNodeSocketRects()
 
     for (int i=0;i<e->RowCount();i++) {
 
-      NodeIO* row = e->row(i);      
+      NodeParameter* row = e->row(i);      
 
       if (row->IsNodeInput() || row->IsNodeOutput()) {
         qreal x = (row->IsNodeOutput()) ? rect().right() - kNodePlugSize : rect().x();
@@ -290,7 +290,7 @@ QVector<QRectF> NodeUI::GetNodeSocketRects()
   return rects;
 }
 
-NodeIO *NodeUI::GetRowFromIndex(int i)
+NodeParameter *NodeUI::GetRowFromIndex(int i)
 {
   if (node_ != nullptr && i < node_->RowCount()) {
     return node_->row(i);

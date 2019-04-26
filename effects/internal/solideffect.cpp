@@ -89,7 +89,7 @@ QString SolidEffect::description()
   return tr("Render a solid color over this clip.");
 }
 
-EffectType SolidEffect::subclip_type()
+NodeSubType SolidEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }

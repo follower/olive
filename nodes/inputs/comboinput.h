@@ -1,9 +1,9 @@
 #ifndef COMBOINPUT_H
 #define COMBOINPUT_H
 
-#include "effects/nodeio.h"
+#include "nodes/nodeparameter.h"
 
-class ComboInput : public NodeIO
+class ComboInput : public NodeParameter
 {
   Q_OBJECT
 public:

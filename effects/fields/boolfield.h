@@ -35,7 +35,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::EffectField().
    */
-  BoolField(NodeIO* parent);
+  BoolField(NodeParameter* parent);
 
   /**
    * @brief Get the boolean value at a given timecode

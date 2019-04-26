@@ -60,7 +60,7 @@ QString ToneEffect::description()
   return tr("Generate a sine wave tone to mix into this clip's audio.");
 }
 
-EffectType ToneEffect::subclip_type()
+NodeSubType ToneEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }

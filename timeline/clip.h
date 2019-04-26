@@ -45,17 +45,23 @@ struct ClipSpeed {
   bool maintain_audio_pitch;
 };
 
+class Clip;
+using ClipPtr = std::shared_ptr<Clip>;
+
 class Clip : public Node {
 public:
   Clip(Track *s);
   virtual ~Clip() override;
-  NodePtr copy(Node *s) override;
+
+  virtual NodePtr copy(Node* c) override;
 
   void Save(QXmlStreamWriter& stream);
 
   bool IsActiveAt(long timecode);
   bool IsSelected(bool containing = true);
   bool IsTransitionSelected(TransitionType subclip_type);
+
+  NodeParameter* texture_output();
 
   Selection ToSelection();
 
@@ -134,7 +140,6 @@ public:
   virtual void Process(double time) override;
 
   // temporary variables
-  int load_id;
   bool undeletable;
   bool replaced;
 
@@ -158,6 +163,10 @@ private:
   QVector<Marker> markers;
   QColor color_;
   bool open_;
+
+  Node* end_node;
+
+  NodeParameter* texture_output_;
 };
 
 #endif // CLIP_H

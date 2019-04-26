@@ -264,7 +264,7 @@ QString VSTHost::description()
   return tr("Use a VST 2.x plugin on this clip's audio.");
 }
 
-EffectType VSTHost::subclip_type()
+NodeSubType VSTHost::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }

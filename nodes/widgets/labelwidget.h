@@ -1,9 +1,9 @@
 #ifndef LABELWIDGET_H
 #define LABELWIDGET_H
 
-#include "effects/nodeio.h"
+#include "nodes/nodeparameter.h"
 
-class LabelWidget : public NodeIO
+class LabelWidget : public NodeParameter
 {
 public:
   LabelWidget(Node* parent, const QString& name, const QString& text);

@@ -25,7 +25,7 @@
 #include "nodes/node.h"
 #include "undo/undo.h"
 
-BoolField::BoolField(NodeIO *parent) :
+BoolField::BoolField(NodeParameter *parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_BOOL)
 {}
 

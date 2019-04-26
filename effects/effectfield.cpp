@@ -26,7 +26,7 @@
 #include "rendering/renderfunctions.h"
 #include "global/config.h"
 #include "global/timing.h"
-#include "effects/nodeio.h"
+#include "effects/nodeparameter.h"
 #include "nodes/node.h"
 #include "undo/undo.h"
 #include "timeline/clip.h"
@@ -34,7 +34,7 @@
 #include "global/math.h"
 #include "global/debug.h"
 
-EffectField::EffectField(NodeIO* parent, EffectFieldType t) :
+EffectField::EffectField(NodeParameter* parent, EffectFieldType t) :
   QObject(parent),
   type_(t),
   enabled_(true)
@@ -49,9 +49,9 @@ EffectField::EffectField(NodeIO* parent, EffectFieldType t) :
   connect(this, SIGNAL(Changed()), parent->GetParentEffect(), SLOT(FieldChanged()));
 }
 
-NodeIO *EffectField::GetParentRow()
+NodeParameter *EffectField::GetParentRow()
 {
-  return static_cast<NodeIO*>(parent());
+  return static_cast<NodeParameter*>(parent());
 }
 
 QVariant EffectField::ConvertStringToValue(const QString &s)

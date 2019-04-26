@@ -23,7 +23,7 @@
 
 #include "nodes/node.h"
 
-class RichTextEffect : public SubClipNode {
+class RichTextEffect : public EffectNode {
   Q_OBJECT
 public:
   RichTextEffect(Clip* c);
@@ -32,7 +32,7 @@ public:
   virtual QString id() override;
   virtual QString category() override;
   virtual QString description() override;
-  virtual EffectType subclip_type() override;
+  virtual NodeSubType subclip_type() override;
   virtual olive::TrackType type() override;
   virtual NodePtr Create(Clip *c) override;
 

@@ -217,7 +217,7 @@ public:
   bool CheckForActiveSequence(bool show_msg = true);
 
 
-  void ShowEffectMenu(EffectType type, olive::TrackType subtype, const QVector<Clip*> selected_clips);
+  void ShowEffectMenu(NodeSubType type, olive::TrackType subtype, const QVector<Clip*> selected_clips);
 
 public slots:
   /**

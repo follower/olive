@@ -51,7 +51,7 @@ QString VolumeEffect::description()
   return tr("Adjust the volume of this clip's audio");
 }
 
-EffectType VolumeEffect::subclip_type()
+NodeSubType VolumeEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }

@@ -42,7 +42,7 @@ QString LogarithmicFadeTransition::description()
   return tr("An logarithmic audio fade that starts fast and ends slow.");
 }
 
-EffectType LogarithmicFadeTransition::subclip_type()
+NodeSubType LogarithmicFadeTransition::subclip_type()
 {
   return EFFECT_TYPE_TRANSITION;
 }

@@ -50,7 +50,7 @@ using NodePtr = std::shared_ptr<Node>;
 class Transition;
 using TransitionPtr = std::shared_ptr<Transition>;
 
-class NodeIO;
+class NodeParameter;
 class EffectField;
 
 class OliveAction : public QUndoCommand {
@@ -124,12 +124,12 @@ private:
 
 class AddEffectCommand : public OliveAction {
 public:
-  AddEffectCommand(Clip* c, NodePtr e, SubClipNodeType m, int insert_pos = -1);
+  AddEffectCommand(Clip* c, NodePtr e, NodeType m, int insert_pos = -1);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
   Clip* clip;
-  SubClipNodeType meta;
+  NodeType meta;
   NodePtr ref;
   int pos;
   bool done;
@@ -137,14 +137,14 @@ private:
 
 class AddTransitionCommand : public OliveAction {
 public:
-  AddTransitionCommand(Clip* iopen, Clip* iclose, TransitionPtr copy, SubClipNodeType itransition, int ilength);
+  AddTransitionCommand(Clip* iopen, Clip* iclose, TransitionPtr copy, NodeType itransition, int ilength);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
   Clip* open_;
   Clip* close_;
   TransitionPtr transition_to_copy_;
-  SubClipNodeType transition_meta_;
+  NodeType transition_meta_;
   int length_;
   TransitionPtr old_open_transition_;
   TransitionPtr old_close_transition_;
@@ -568,11 +568,11 @@ private:
 
 class SetIsKeyframing : public OliveAction {
 public:
-  SetIsKeyframing(NodeIO* irow, bool ib);
+  SetIsKeyframing(NodeParameter* irow, bool ib);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  NodeIO* row;
+  NodeParameter* row;
   bool b;
 };
 

@@ -141,7 +141,7 @@ QString TextEffect::description()
   return tr("Generate simple text over this clip");
 }
 
-EffectType TextEffect::subclip_type()
+NodeSubType TextEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }

@@ -46,7 +46,7 @@ QString CrossDissolveTransition::description()
   return tr("Dissolve clips evenly.");
 }
 
-EffectType CrossDissolveTransition::subclip_type()
+NodeSubType CrossDissolveTransition::subclip_type()
 {
   return EFFECT_TYPE_TRANSITION;
 }

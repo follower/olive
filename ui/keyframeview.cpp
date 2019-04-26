@@ -124,7 +124,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
 
       if (container->IsExpanded()) {
         for (int j=0;j<e->RowCount();j++) {
-          NodeIO* row = e->row(j);
+          NodeParameter* row = e->row(j);
 
           int keyframe_y = container->GetRowY(j, this);
 
@@ -254,7 +254,7 @@ void KeyframeView::mousePressEvent(QMouseEvent *event) {
   long frame_max = getFrameFromScreenPoint(panel_effect_controls->zoom, mouse_x+KEYFRAME_SIZE);
   for (int i=0;i<rowY.size();i++) {
     if (mouse_y > rowY.at(i)-KEYFRAME_SIZE-KEYFRAME_SIZE && mouse_y < rowY.at(i)+KEYFRAME_SIZE+KEYFRAME_SIZE) {
-      NodeIO* row = rows.at(i);
+      NodeParameter* row = rows.at(i);
 
       row->FocusRow();
 
@@ -358,7 +358,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
 
       for (int i=0;i<rowY.size();i++) {
         if (rowY.at(i) >= min_row && rowY.at(i) <= max_row) {
-          NodeIO* row = rows.at(i);
+          NodeParameter* row = rows.at(i);
           for (int k=0;k<row->FieldCount();k++) {
             EffectField* field = row->Field(k);
             for (int j=0;j<field->keyframes.size();j++) {

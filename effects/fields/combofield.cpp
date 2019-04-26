@@ -26,7 +26,7 @@
 #include "ui/comboboxex.h"
 #include "undo/undo.h"
 
-ComboField::ComboField(NodeIO* parent) :
+ComboField::ComboField(NodeParameter* parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_COMBO)
 {}
 

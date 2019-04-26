@@ -32,7 +32,7 @@
 #include "ui/graphview.h"
 #include "nodes/node.h"
 #include "effects/effectfields.h"
-#include "effects/nodeio.h"
+#include "effects/nodeparameter.h"
 #include "timeline/clip.h"
 #include "rendering/renderfunctions.h"
 #include "panels.h"
@@ -131,7 +131,7 @@ GraphEditor::GraphEditor(QWidget* parent) : Panel(parent), row(nullptr) {
   Retranslate();
 }
 
-NodeIO *GraphEditor::get_row()
+NodeParameter *GraphEditor::get_row()
 {
   return row;
 }
@@ -166,7 +166,7 @@ bool GraphEditor::focused()
   return hasFocus() || view->hasFocus() || header->hasFocus();
 }
 
-void GraphEditor::set_row(NodeIO *r) {
+void GraphEditor::set_row(NodeParameter *r) {
   for (int i=0;i<field_sliders_.size();i++) {
     delete field_sliders_.at(i);
     delete field_enable_buttons.at(i);

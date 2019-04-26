@@ -1,7 +1,6 @@
 #include "track.h"
 
 #include "timeline/clip.h"
-#include "timeline/tracklist.h"
 #include "timeline/sequence.h"
 #include "global/math.h"
 
@@ -9,8 +8,8 @@ int olive::timeline::kTrackDefaultHeight = 40;
 int olive::timeline::kTrackMinHeight = 30;
 int olive::timeline::kTrackHeightIncrement = 10;
 
-Track::Track(Node *parent, olive::TrackType type) :
-  parent_(parent),
+Track::Track(Sequence *p, olive::TrackType type) :
+  parent_(p),
   type_(type),
   muted_(false),
   soloed_(false),
@@ -19,46 +18,33 @@ Track::Track(Node *parent, olive::TrackType type) :
 {
 }
 
+NodePtr Track::Create(Node *c)
+{
+  return std::make_shared<Track>(c);
+}
+
 NodePtr Track::copy(Node* parent)
 {
-  Track* t = new Track(parent, type_);
+  NodePtr track = std::make_shared<Track>(parent, type_);
 
-  t->ResizeClipArray(ClipCount());
-  for (int i=0;i<clips_.size();i++) {
-    ClipPtr c = clips_.at(i);
+  Track* t = static_cast<Track*>(t);
+  t->children_.resize(children_.size());
+  for (int i=0;i<children_.size();i++) {
+    ClipPtr c = std::static_pointer_cast<Clip>(children_.at(i));
     ClipPtr copy = c->copy(t);
     copy->linked = c->linked;
-    t->clips_[i] = copy;
+    t->children_[i] = copy;
   }
 
-  return t;
+  return track;
 }
 
 Sequence *Track::sequence()
 {
-  return parent_->GetParent();
+  return static_cast<Sequence*>(parent_);
 }
 
-TrackList *Track::track_list()
-{
-  return parent_;
-}
-
-void Track::Save(QXmlStreamWriter &stream)
-{
-  stream.writeStartElement("track");
-
-  for (int j=0;j<clips_.size();j++) {
-    Clip* c = clips_.at(j).get();
-
-    c->Save(stream);
-
-  }
-
-  stream.writeEndElement(); // track
-}
-
-olive::TrackType Track::track_type()
+olive::TrackType Track::type()
 {
   return type_;
 }
@@ -99,56 +85,60 @@ void Track::SetName(const QString &s)
   name_ = s;
 }
 
-void Track::AddClip(ClipPtr clip)
+void Track::AddChild(NodePtr child)
 {
-  if (clips_.contains(clip)) {
+  ClipPtr clip = std::dynamic_pointer_cast<Clip>(child);
+
+  Q_ASSERT(clip != nullptr);
+
+  if (children_.contains(clip)) {
     return;
   }
 
-  clips_.append(clip);
+  children_.append(clip);
   if (clip->track() != nullptr && clip->track() != this) {
     clip->track()->RemoveClip(clip.get());
   }
   clip->set_track(this);
 }
 
+Node *Track::AddChild(NodeType type)
+{
+  Q_ASSERT(false);
+}
+
 int Track::ClipCount()
 {
-  return clips_.size();
+  return children_.size();
 }
 
 ClipPtr Track::GetClip(int i)
 {
-  return clips_.at(i);
+  return std::static_pointer_cast<Clip>(children_.at(i));
 }
 
 void Track::RemoveClip(int i)
 {
-  clips_.removeAt(i);
+  children_.removeAt(i);
 }
 
 void Track::RemoveClip(Clip *c)
 {
-  for (int i=0;i<clips_.size();i++) {
-    if (clips_.at(i).get() == c) {
-      clips_.removeAt(i);
+  for (int i=0;i<children_.size();i++) {
+    if (children_.at(i).get() == c) {
+      children_.removeAt(i);
       return;
     }
   }
-}
-
-void Track::ResizeClipArray(int new_size)
-{
-  clips_.resize(new_size);
 }
 
 QVector<Clip*> Track::GetAllClips()
 {
   QVector<Clip*> clips;
 
-  clips.resize(clips_.size());
-  for (int i=0;i<clips_.size();i++) {
-    clips[i] = clips_.at(i).get();
+  clips.resize(children_.size());
+  for (int i=0;i<children_.size();i++) {
+    clips[i] = static_cast<Clip*>(children_.at(i).get());
   }
 
   return clips;

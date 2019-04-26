@@ -39,7 +39,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::EffectField().
    */
-  DoubleField(NodeIO* parent);
+  DoubleField(NodeParameter* parent);
 
   /**
    * @brief Get double value at timecode

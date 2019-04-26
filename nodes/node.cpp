@@ -61,10 +61,10 @@
 QVector<NodePtr> olive::node_library;
 
 Node::Node(Node *parent) :
-  QObject(parent),
+  parent_(parent),
   enabled_(true),
   expanded_(true),
-  pipeline_(this)
+  static_(false)
 {
 }
 
@@ -80,26 +80,54 @@ Node::~Node() {
   }
 }
 
+NodeSubType Node::subclip_type()
+{
+  return EFFECT_TYPE_INVALID;
+}
+
 olive::TrackType Node::type()
 {
   return olive::kTypeInvalid;
 }
 
-void Node::AddRow(NodeIO *row)
+bool Node::IsStatic()
+{
+  return static_;
+}
+
+void Node::SetStatic(bool s)
+{
+  static_ = s;
+}
+
+void Node::AddChild(NodePtr child)
+{
+  child->parent_ = this;
+  children_.append(child);
+}
+
+Node* Node::AddChild(NodeType type)
+{
+  NodePtr node = olive::node_library.at(type)->Create(this);
+  AddChild(node);
+  return node.get();
+}
+
+void Node::AddRow(NodeParameter *row)
 {
   row->setParent(this);
   rows.append(row);
 }
 
-int Node::IndexOfRow(NodeIO *row)
+int Node::IndexOfRow(NodeParameter *row)
 {
   return rows.indexOf(row);
 }
 
-void Node::copy_field_keyframes(NodePtr e) {
+void Node::copy_field_keyframes(Node *e) {
   for (int i=0;i<rows.size();i++) {
-    NodeIO* row = rows.at(i);
-    NodeIO* copy_row = e->rows.at(i);
+    NodeParameter* row = rows.at(i);
+    NodeParameter* copy_row = e->rows.at(i);
     copy_row->SetKeyframingInternal(row->IsKeyframing());
     for (int j=0;j<row->FieldCount();j++) {
       // Get field from this (the source) effect
@@ -117,7 +145,7 @@ void Node::copy_field_keyframes(NodePtr e) {
   }
 }
 
-NodeIO* Node::row(int i) {
+NodeParameter* Node::row(int i) {
   return rows.at(i);
 }
 
@@ -125,17 +153,17 @@ int Node::RowCount() {
   return rows.size();
 }
 
-EffectGizmo *Node::add_gizmo(int type) {
+EffectGizmo *EffectNode::add_gizmo(int type) {
   EffectGizmo* gizmo = new EffectGizmo(this, type);
   gizmos.append(gizmo);
   return gizmo;
 }
 
-EffectGizmo *Node::gizmo(int i) {
+EffectGizmo *EffectNode::gizmo(int i) {
   return gizmos.at(i);
 }
 
-int Node::gizmo_count() {
+int EffectNode::gizmo_count() {
   return gizmos.size();
 }
 
@@ -154,7 +182,7 @@ void Node::refresh() {}
 
 void Node::FieldChanged() {
   // Update the UI if a field has been modified, but don't bother if this effect is inactive
-  if (parent() != nullptr) {
+  if (parent_ != nullptr) {
     update_ui(false);
   }
 }
@@ -383,7 +411,7 @@ void Node::save(QXmlStreamWriter& stream) {
 void Node::load_from_string(const QByteArray &s) {
   // clear existing keyframe data
   for (int i=0;i<rows.size();i++) {
-    NodeIO* row = rows.at(i);
+    NodeParameter* row = rows.at(i);
     row->SetKeyframingInternal(false);
     for (int j=0;j<row->FieldCount();j++) {
       EffectField* field = row->Field(j);
@@ -451,13 +479,6 @@ const QPointF &Node::pos()
   return pos_;
 }
 
-NodePtr Node::copy(Node *c) {
-  NodePtr copy = Create(c);
-  copy->SetEnabled(IsEnabled());
-  copy_field_keyframes(copy);
-  return copy;
-}
-
 int GetNodeLibraryIndexFromId(const QString& id) {
   for (int i=0;i<olive::node_library.size();i++) {
     if (olive::node_library.at(i)->id() == id) {
@@ -468,39 +489,29 @@ int GetNodeLibraryIndexFromId(const QString& id) {
   return -1;
 }
 
-SubClipNode::SubClipNode(Clip *c) :
+EffectNode::EffectNode(Node *c) :
   Node(c)
 {
 }
 
-Clip *SubClipNode::GetClipParent()
+double EffectNode::Now()
 {
-  return static_cast<Clip*>(parent());
+  return playhead_to_clip_seconds(GetClipparent_, GetClipparent_->track()->sequence()->playhead);
 }
 
-double SubClipNode::Now()
+long EffectNode::NowInFrames()
 {
-  return playhead_to_clip_seconds(GetClipParent(), GetClipParent()->track()->sequence()->playhead);
+  return playhead_to_clip_frame(GetClipparent_, GetClipparent_->track()->sequence()->playhead);
 }
 
-long SubClipNode::NowInFrames()
-{
-  return playhead_to_clip_frame(GetClipParent(), GetClipParent()->track()->sequence()->playhead);
-}
-
-QString SubClipNode::category()
+QString Node::category()
 {
   return QString();
 }
 
-bool SubClipNode::IsCreatable()
-{
-  return true;
-}
+void EffectNode::gizmo_draw(double, GLTextureCoords &) {}
 
-void SubClipNode::gizmo_draw(double, GLTextureCoords &) {}
-
-void SubClipNode::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, double timecode, bool done) {
+void EffectNode::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, double timecode, bool done) {
   // Loop through each gizmo to find `gizmo`
   for (int i=0;i<gizmos.size();i++) {
 
@@ -569,7 +580,7 @@ void SubClipNode::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement,
   }
 }
 
-void SubClipNode::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatrix4x4& projection) {
+void EffectNode::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatrix4x4& projection) {
   for (int i=0;i<gizmos.size();i++) {
     EffectGizmo* g = gizmos.at(i);
 
@@ -590,6 +601,6 @@ void SubClipNode::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatrix4
   }
 }
 
-bool SubClipNode::are_gizmos_enabled() {
+bool EffectNode::are_gizmos_enabled() {
   return (gizmos.size() > 0);
 }

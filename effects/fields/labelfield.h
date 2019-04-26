@@ -37,7 +37,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::EffectField().
    */
-  LabelField(NodeIO* parent, const QString& string);
+  LabelField(NodeParameter* parent, const QString& string);
 
   /**
    * @brief Reimplementation of EffectField::CreateWidget()

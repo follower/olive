@@ -22,7 +22,7 @@
 
 #include <QLabel>
 
-LabelField::LabelField(NodeIO *parent, const QString &string) :
+LabelField::LabelField(NodeParameter *parent, const QString &string) :
   EffectField(parent, EffectField::EFFECT_FIELD_UI),
   label_text_(string)
 {}

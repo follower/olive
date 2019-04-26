@@ -821,7 +821,7 @@ void GraphView::wheelEvent(QWheelEvent *event) {
   }
 }
 
-void GraphView::set_row(NodeIO *r) {
+void GraphView::set_row(NodeParameter *r) {
   if (row != r) {
     selected_keys.clear();
     selected_keys_fields.clear();

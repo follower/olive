@@ -52,6 +52,10 @@ gcc:QMAKE_CXXFLAGS += -Wno-reorder
 
 SOURCES += \
         main.cpp \
+    nodes/nodeparameter.cpp \
+    timeline/audiotrack.cpp \
+    timeline/videoclip.cpp \
+    timeline/videotrack.cpp \
         ui/mainwindow.cpp \
     panels/project.cpp \
     panels/effectcontrols.cpp \
@@ -206,11 +210,14 @@ SOURCES += \
     decoders/ffmpegdecoder.cpp \
     decoders/ffmpegvideodecoder.cpp \
     rendering/memorycache.cpp \
-    effects/nodeio.cpp \
     decoders/ffmpegaudiodecoder.cpp \
     rendering/framecache.cpp
 
 HEADERS += \
+    nodes/nodeparameter.h \
+    timeline/audiotrack.h \
+    timeline/videoclip.h \
+    timeline/videotrack.h \
         ui/mainwindow.h \
     panels/project.h \
     panels/effectcontrols.h \
@@ -372,7 +379,6 @@ HEADERS += \
     decoders/ffmpegdecoder.h \
     decoders/ffmpegvideodecoder.h \
     rendering/memorycache.h \
-    effects/nodeio.h \
     decoders/ffmpegaudiodecoder.h \
     rendering/framecache.h
 

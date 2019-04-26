@@ -5,7 +5,7 @@
 #include <QDebug>
 
 VecInput::VecInput(Node* parent, const QString& id, const QString& name, int values, bool savable, bool keyframable) :
-  NodeIO(parent, id, name, savable, keyframable),
+  NodeParameter(parent, id, name, savable, keyframable),
   single_value_mode_(false),
   values_(values)
 {

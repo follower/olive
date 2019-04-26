@@ -27,7 +27,6 @@
 #include "clip.h"
 #include "marker.h"
 #include "selection.h"
-#include "tracklist.h"
 #include "ghost.h"
 #include "rendering/memorycache.h"
 
@@ -61,7 +60,6 @@ public:
 
   long GetEndFrame();
   QVector<Clip*> GetAllClips();
-  TrackList* GetTrackList(olive::TrackType type);
 
   void RefreshClipsUsingMedia(Media* m = nullptr);
   QVector<Clip*> SelectedClips(bool containing = true);
@@ -119,14 +117,10 @@ public:
 
   bool wrapper_sequence;
 
-  int save_id;
-
   QVector<Marker> markers;
 signals:
   void Changed();
 private:
-  QVector<TrackList*> track_lists_;
-
   QString name_;
 
   ClipPtr SplitClip(ComboAction* ca, bool transitions, Clip *clip, long frame);
@@ -134,6 +128,8 @@ private:
   bool SplitSelection(ComboAction* ca, QVector<Selection> selections);
 
   MemoryCache::MemoryBuffer buffer_;
+
+  NodeParameter* texture_input_;
 
   using Node::copy;
 };

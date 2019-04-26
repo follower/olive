@@ -1,9 +1,9 @@
 #ifndef COLORINPUT_H
 #define COLORINPUT_H
 
-#include "effects/nodeio.h"
+#include "nodes/nodeparameter.h"
 
-class ColorInput : public NodeIO
+class ColorInput : public NodeParameter
 {
   Q_OBJECT
 public:

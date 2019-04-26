@@ -102,7 +102,7 @@ QString RichTextEffect::description()
   return tr("Render formatted rich text over a clip.");
 }
 
-EffectType RichTextEffect::subclip_type()
+NodeSubType RichTextEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }

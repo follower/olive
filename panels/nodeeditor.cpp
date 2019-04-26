@@ -150,7 +150,7 @@ void NodeEditor::LoadEdges()
   }
 }
 
-void NodeEditor::ConnectRow(NodeIO *row)
+void NodeEditor::ConnectRow(NodeParameter *row)
 {
   if (!connected_rows_.contains(row)) {
     connect(row, SIGNAL(EdgesChanged()), this, SLOT(ReloadEdges()));

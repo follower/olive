@@ -78,7 +78,7 @@ QString CornerPinEffect::description()
   return tr("Distort/warp this clip by pinning each of its four corners.");
 }
 
-EffectType CornerPinEffect::subclip_type()
+NodeSubType CornerPinEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }

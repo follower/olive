@@ -456,7 +456,7 @@ void OliveGlobal::EffectMenuAction(QAction *q)
 {
   ComboAction* ca = new ComboAction();
 
-  SubClipNodeType node_type = static_cast<SubClipNodeType>(q->data().toInt());
+  NodeType node_type = static_cast<NodeType>(q->data().toInt());
   Node* n = olive::node_library[node_type].get();
 
   for (int i=0;i<effect_menu_selected_clips.size();i++) {
@@ -680,7 +680,7 @@ bool OliveGlobal::CheckForActiveSequence(bool show_msg)
   return true;
 }
 
-void OliveGlobal::ShowEffectMenu(EffectType type, olive::TrackType subtype, const QVector<Clip*> selected_clips)
+void OliveGlobal::ShowEffectMenu(NodeSubType type, olive::TrackType subtype, const QVector<Clip*> selected_clips)
 {
   effect_menu_selected_clips = selected_clips;
 

@@ -189,7 +189,7 @@ void SetTimelineInOutCommand::doRedo() {
   }
 }
 
-AddEffectCommand::AddEffectCommand(Clip* c, NodePtr e, SubClipNodeType m, int insert_pos) {
+AddEffectCommand::AddEffectCommand(Clip* c, NodePtr e, NodeType m, int insert_pos) {
   clip = c;
   ref = e;
   meta = m;
@@ -219,7 +219,7 @@ void AddEffectCommand::doRedo() {
 AddTransitionCommand::AddTransitionCommand(Clip* iopen,
                                            Clip* iclose,
                                            TransitionPtr copy,
-                                           SubClipNodeType itransition,
+                                           NodeType itransition,
                                            int ilength) {
   open_ = iopen;
   close_ = iclose;
@@ -1086,7 +1086,7 @@ void KeyframeAdd::doRedo() {
   }
 }
 
-SetIsKeyframing::SetIsKeyframing(NodeIO *irow, bool ib) {
+SetIsKeyframing::SetIsKeyframing(NodeParameter *irow, bool ib) {
   row = irow;
   b = ib;
 }

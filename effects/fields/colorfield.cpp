@@ -26,7 +26,7 @@
 #include "nodes/node.h"
 #include "undo/undo.h"
 
-ColorField::ColorField(NodeIO* parent) :
+ColorField::ColorField(NodeParameter* parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_COLOR)
 {}
 

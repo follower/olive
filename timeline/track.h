@@ -8,6 +8,7 @@
 #include "tracktypes.h"
 #include "undo/comboaction.h"
 #include "timeline/selection.h"
+#include "clip.h"
 
 class Sequence;
 class Transition;
@@ -35,29 +36,27 @@ namespace olive {
   }
 }
 
-class TrackList;
-
 class Track : public Node
 {
   Q_OBJECT
 public:
-  Track(Node* parent, olive::TrackType subclip_type);
-  NodePtr copy(Node* parent);
+  Track(Sequence* p, olive::TrackType subclip_type);
+
+  virtual NodePtr Create(Node *c) override;
+  virtual NodePtr copy(Node* parent) override;
 
   Sequence* sequence();
-  TrackList* track_list();
 
-  void Save(QXmlStreamWriter& stream);
-
-  olive::TrackType track_type();
+  virtual olive::TrackType type() override;
 
   int height();
   void set_height(int h);
 
-  QString name();
+  virtual QString name() override;
   void SetName(const QString& s);
 
-  void AddClip(ClipPtr clip);
+  virtual void AddChild(NodePtr child) override;
+  virtual Node* AddChild(NodeType type) override;
   int ClipCount();
   ClipPtr GetClip(int i);
   void RemoveClip(int i);
@@ -106,13 +105,8 @@ signals:
   void HeightChanged(int height);
 
 private:
-  void ResizeClipArray(int new_size);
-
-  TrackList* parent_;
   olive::TrackType type_;
   int height_;
-  QVector<ClipPtr> clips_;
-  QVector<NodePtr> effects_;
   QVector<Selection> selections_;
 
   bool muted_;

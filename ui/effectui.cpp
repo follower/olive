@@ -107,7 +107,7 @@ EffectUI::EffectUI(Node* e) :
   keyframe_navigators_.resize(e->RowCount());
 
   for (int i=0;i<e->RowCount();i++) {
-    NodeIO* row = e->row(i);
+    NodeParameter* row = e->row(i);
 
     ClickableLabel* row_label = new ClickableLabel(row->name());
     connect(row_label, SIGNAL(clicked()), row, SLOT(FocusRow()));
@@ -183,7 +183,7 @@ void EffectUI::AddAdditionalEffect(Node *e)
   // Attach this UI's widgets to the additional effect
   for (int i=0;i<effect_->RowCount();i++) {
 
-    NodeIO* row = effect_->row(i);
+    NodeParameter* row = effect_->row(i);
 
     // Attach existing keyframe navigator to this effect's row
     AttachKeyframeNavigationToRow(e->row(i), keyframe_navigators_.at(i));
@@ -231,7 +231,7 @@ void EffectUI::UpdateFromEffect()
 
   for (int j=0;j<effect->RowCount();j++) {
 
-    NodeIO* row = effect->row(j);
+    NodeParameter* row = effect->row(j);
 
     for (int k=0;k<row->FieldCount();k++) {
       EffectField* field = row->Field(k);
@@ -286,7 +286,7 @@ QWidget *EffectUI::Widget(int row, int field)
   return widgets_.at(row).at(field);
 }
 
-void EffectUI::AttachKeyframeNavigationToRow(NodeIO *row, KeyframeNavigator *nav)
+void EffectUI::AttachKeyframeNavigationToRow(NodeParameter *row, KeyframeNavigator *nav)
 {
   if (nav == nullptr) {
     return;

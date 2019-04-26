@@ -2,20 +2,20 @@
 
 #include <QDebug>
 
-#include "effects/nodeio.h"
+#include "effects/nodeparameter.h"
 
-NodeEdge::NodeEdge(NodeIO *output, NodeIO *input) :
+NodeEdge::NodeEdge(NodeParameter *output, NodeParameter *input) :
   output_(output),
   input_(input)
 {
 }
 
-NodeIO *NodeEdge::output()
+NodeParameter *NodeEdge::output()
 {
   return output_;
 }
 
-NodeIO *NodeEdge::input()
+NodeParameter *NodeEdge::input()
 {
   return input_;
 }

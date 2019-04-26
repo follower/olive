@@ -55,7 +55,7 @@ void Footage::Save(QXmlStreamWriter &stream)
   QDir proj_dir = QFileInfo(olive::ActiveProjectFilename).absoluteDir();
 
   stream.writeStartElement("footage");
-  stream.writeAttribute("id", QString::number(save_id));
+  stream.writeAttribute("id", QString::number(reinterpret_cast<quintptr>(this)));
   stream.writeAttribute("name", name);
   stream.writeAttribute("url", proj_dir.relativeFilePath(url));
   stream.writeAttribute("duration", QString::number(length));

@@ -764,7 +764,7 @@ void Viewer::set_media(Media* m) {
         c->set_track(track);
         c->set_clip_in(0);
         c->refresh();
-        track->AddClip(c);
+        track->AddChild(c);
       } else {
         new_sequence->width = olive::config.default_sequence_width;
         new_sequence->height = olive::config.default_sequence_height;

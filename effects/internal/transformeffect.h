@@ -23,7 +23,7 @@
 
 #include "nodes/node.h"
 
-class TransformEffect : public SubClipNode {
+class TransformEffect : public EffectNode {
   Q_OBJECT
 public:
   TransformEffect(Clip* c);
@@ -32,7 +32,7 @@ public:
   virtual QString id() override;
   virtual QString category() override;
   virtual QString description() override;
-  virtual EffectType subclip_type() override;
+  virtual NodeSubType subclip_type() override;
   virtual olive::TrackType type() override;
   virtual NodePtr Create(Node *c) override;
 
@@ -41,7 +41,7 @@ public:
 
   virtual void gizmo_draw(double timecode, GLTextureCoords& coords) override;
 
-  NodeIO* matrix_output();
+  NodeParameter* matrix_output();
 
 public slots:
   void toggle_uniform_scale(bool enabled);
@@ -54,7 +54,7 @@ private:
   Vec2Input* anchor_point;
   DoubleInput* opacity;
 
-  NodeIO* matrix_output_;
+  NodeParameter* matrix_output_;
 
   EffectGizmo* top_left_gizmo;
   EffectGizmo* top_center_gizmo;

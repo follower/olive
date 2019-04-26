@@ -1,7 +1,7 @@
 #include "buttonwidget.h"
 
 ButtonWidget::ButtonWidget(Node* parent, const QString& name, const QString& text) :
-  NodeIO(parent, nullptr, name, false, false)
+  NodeParameter(parent, nullptr, name, false, false)
 {
   ButtonField* button_field = new ButtonField(this, text);
 

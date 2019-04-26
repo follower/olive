@@ -1,9 +1,9 @@
 #ifndef BOOLINPUT_H
 #define BOOLINPUT_H
 
-#include "effects/nodeio.h"
+#include "nodes/nodeparameter.h"
 
-class BoolInput : public NodeIO
+class BoolInput : public NodeParameter
 {
   Q_OBJECT
 public:

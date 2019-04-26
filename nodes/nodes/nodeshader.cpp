@@ -1,11 +1,11 @@
 #include "nodeshader.h"
 
-NodeShader::NodeShader(Clip* c,
+NodeShader::NodeShader(Node* c,
                        const QString &name,
                        const QString &id,
                        const QString &category,
                        const QString &filename) :
-  Node(c),
+  EffectNode(c),
   name_(name),
   id_(id),
   category_(category),
@@ -39,7 +39,7 @@ NodeShader::NodeShader(Clip* c,
           if (id.isEmpty() || name.isEmpty() || type == olive::nodes::kInvalid) {
             qCritical() << "Couldn't load field from" << filename_ << "- ID, type, and name cannot be empty.";
           } else {
-            NodeIO* field = nullptr;
+            NodeParameter* field = nullptr;
 
             switch (type) {
             case olive::nodes::kFloat:
@@ -152,7 +152,6 @@ NodeShader::NodeShader(Clip* c,
             }
           }
         } else if (reader.name() == "shader" && reader.isStartElement()) {
-          SetFlags(Flags() | ShaderFlag);
           const QXmlStreamAttributes& attributes = reader.attributes();
           for (int i=0;i<attributes.size();i++) {
             const QXmlStreamAttribute& attr = attributes.at(i);
@@ -161,7 +160,7 @@ NodeShader::NodeShader(Clip* c,
             } else if (attr.name() == "frag") {
               shader_frag_path_ = attr.value().toString();
             } else if (attr.name() == "iterations") {
-              setIterations(attr.value().toInt());
+              iterations_ = attr.value().toInt();
             } else if (attr.name() == "function") {
               shader_function_name_ = attr.value().toString();
             }
@@ -200,7 +199,7 @@ QString NodeShader::description()
   return description_;
 }
 
-EffectType NodeShader::subclip_type()
+NodeSubType NodeShader::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }

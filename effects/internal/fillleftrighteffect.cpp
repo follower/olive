@@ -46,7 +46,7 @@ QString FillLeftRightEffect::description()
   return tr("Replaces either the left or right channel with the other");
 }
 
-EffectType FillLeftRightEffect::subclip_type()
+NodeSubType FillLeftRightEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }

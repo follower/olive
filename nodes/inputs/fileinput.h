@@ -1,9 +1,9 @@
 #ifndef FILEINPUT_H
 #define FILEINPUT_H
 
-#include "effects/nodeio.h"
+#include "nodes/nodeparameter.h"
 
-class FileInput : public NodeIO
+class FileInput : public NodeParameter
 {
   Q_OBJECT
 public:

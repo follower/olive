@@ -87,7 +87,6 @@ public:
   int64_t length;
   QVector<FootageStream> video_tracks;
   QVector<FootageStream> audio_tracks;
-  int save_id;
   bool ready;
   bool invalid;
   double speed;

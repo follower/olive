@@ -121,7 +121,7 @@ void EffectsPanel::Load() {
       // to clear the graph editor later.
       if (!graph_editor_row_is_still_active) {
         for (int k=0;k<effects_to_open.at(j)->RowCount();k++) {
-          NodeIO* row = effects_to_open.at(j)->row(k);
+          NodeParameter* row = effects_to_open.at(j)->row(k);
           if (row == panel_graph_editor->get_row()) {
             graph_editor_row_is_still_active = true;
             break;

@@ -25,7 +25,7 @@
 
 #include <QImage>
 
-class SolidEffect : public SubClipNode {
+class SolidEffect : public EffectNode {
   Q_OBJECT
 public:
   enum SolidType {
@@ -40,7 +40,7 @@ public:
   virtual QString id() override;
   virtual QString category() override;
   virtual QString description() override;
-  virtual EffectType subclip_type() override;
+  virtual NodeSubType subclip_type() override;
   virtual olive::TrackType type() override;
   virtual NodePtr Create(Clip *c) override;
 

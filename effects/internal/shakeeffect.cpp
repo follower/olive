@@ -100,7 +100,7 @@ QString ShakeEffect::description()
   return tr("Simulate a camera shake movement.");
 }
 
-EffectType ShakeEffect::subclip_type()
+NodeSubType ShakeEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }
