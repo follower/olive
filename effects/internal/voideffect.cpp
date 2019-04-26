@@ -54,12 +54,12 @@ QString VoidEffect::description()
   return QString();
 }
 
-EffectType VoidEffect::type()
+EffectType VoidEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }
 
-olive::TrackType VoidEffect::subtype()
+olive::TrackType VoidEffect::type()
 {
   return olive::kTypeVideo;
 }

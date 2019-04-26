@@ -49,15 +49,15 @@ Transition::Transition(Clip *c) :
   length_field->SetMinimum(1);
   length_field->SetDisplayType(LabelSlider::FrameNumber);
 
-  if (parent_clip != nullptr) {
-    length_field->SetFrameRate(parent_clip->track()->sequence() == nullptr ?
-                                 parent_clip->cached_frame_rate() : parent_clip->track()->sequence()->frame_rate);
+  if (parent() != nullptr) {
+    length_field->SetFrameRate(parent()->track()->sequence() == nullptr ?
+                                 parent()->cached_frame_rate() : parent_clip->track()->sequence()->frame_rate);
   }
 
   connect(length_field, SIGNAL(Changed()), this, SLOT(UpdateMaximumLength()));
 }
 
-NodePtr Transition::copy(Clip *c) {
+NodePtr Transition::copy(Node *c) {
   NodePtr node = Node::copy(c);
 
   static_cast<Transition*>(node.get())->set_length(get_true_length());
@@ -86,8 +86,8 @@ int Transition::get_length() {
 }
 
 Clip* Transition::get_opened_clip() {
-  if (parent_clip->opening_transition.get() == this) {
-    return parent_clip;
+  if (GetClipParent()->opening_transition.get() == this) {
+    return GetClipParent();
   } else if (secondary_clip != nullptr && secondary_clip->opening_transition.get() == this) {
     return secondary_clip;
   }
@@ -95,12 +95,17 @@ Clip* Transition::get_opened_clip() {
 }
 
 Clip* Transition::get_closed_clip() {
-  if (parent_clip->closing_transition.get() == this) {
-    return parent_clip;
+  if (GetClipParent()->closing_transition.get() == this) {
+    return GetClipParent();
   } else if (secondary_clip != nullptr && secondary_clip->closing_transition.get() == this) {
     return secondary_clip;
   }
   return nullptr;
+}
+
+Clip *Transition::GetClipParent()
+{
+  return static_cast<Clip*>(parent());
 }
 
 /*

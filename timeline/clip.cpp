@@ -26,7 +26,6 @@
 #include "effects/transition.h"
 #include "project/footage.h"
 #include "global/config.h"
-#include "rendering/cacher.h"
 #include "rendering/renderfunctions.h"
 #include "panels/project.h"
 #include "timeline/sequence.h"
@@ -38,9 +37,7 @@
 #include "global/timing.h"
 
 Clip::Clip(Track *s) :
-  track_(s),
-  cacher(this),
-  enabled_(true),
+  Node(s),
   clip_in_(0),
   timeline_in_(0),
   timeline_out_(0),
@@ -51,39 +48,38 @@ Clip::Clip(Track *s) :
   closing_transition(nullptr),
   undeletable(false),
   replaced(false),
-  open_(false),
-  texture(0)
+  open_(false)
 {
 }
 
-ClipPtr Clip::copy(Track* s) {
-  ClipPtr copy = std::make_shared<Clip>(s);
+NodePtr Clip::copy(Node* s) {
+  ClipPtr c = std::make_shared<Clip>(s);
 
-  copy->set_enabled(enabled());
-  copy->set_name(name());
-  copy->set_clip_in(clip_in());
-  copy->set_timeline_in(timeline_in());
-  copy->set_timeline_out(timeline_out());
-  copy->set_color(color());
-  copy->set_media(media(), media_stream_index());
-  copy->set_autoscaled(autoscaled());
-  copy->set_speed(speed());
-  copy->set_reversed(reversed());
+  c->SetEnabled(IsEnabled());
+  c->set_name(name());
+  c->set_clip_in(clip_in());
+  c->set_timeline_in(timeline_in());
+  c->set_timeline_out(timeline_out());
+  c->set_color(color());
+  c->set_media(media(), media_stream_index());
+  c->set_autoscaled(autoscaled());
+  c->set_speed(speed());
+  c->set_reversed(reversed());
 
-  for (int i=0;i<effects.size();i++) {
-    copy->effects.append(effects.at(i)->copy(copy.get()));
-  }
+  /* TODO COPY EFFECTS PIPELINE
 
-  copy->set_cached_frame_rate((this->track_ == nullptr) ? cached_frame_rate() : this->track_->sequence()->frame_rate);
+    */
 
-  copy->refresh();
+  c->set_cached_frame_rate((track() == nullptr) ? cached_frame_rate() : track()->sequence()->frame_rate);
 
-  return copy;
+  c->refresh();
+
+  return std::static_pointer_cast<Node>(c);
 }
 
 bool Clip::IsActiveAt(long timecode)
 {
-  return enabled()
+  return IsEnabled()
       && timeline_in(true) <= timecode
       && timeline_out(true) > timecode
       && timecode - timeline_in(true) + clip_in(true) < media_length()
@@ -92,20 +88,20 @@ bool Clip::IsActiveAt(long timecode)
 
 bool Clip::IsSelected(bool containing)
 {
-  if (this->track_ == nullptr) {
+  if (track() == nullptr) {
     return false;
   }
 
-  return this->track_->IsClipSelected(this, containing);
+  return track()->IsClipSelected(this, containing);
 }
 
 bool Clip::IsTransitionSelected(TransitionType type)
 {
   switch (type) {
   case kTransitionOpening:
-    return track_->IsTransitionSelected(opening_transition.get());
+    return track()->IsTransitionSelected(opening_transition.get());
   case kTransitionClosing:
-    return track_->IsTransitionSelected(closing_transition.get());
+    return track()->IsTransitionSelected(closing_transition.get());
   default:
     return false;
   }
@@ -169,20 +165,7 @@ void Clip::Move(ComboAction *ca, long iin, long iout, long iclip_in, Track *itra
   track()->sequence()->MoveClip(this, ca, iin, iout, iclip_in, itrack, verify_transitions, relative);
 }
 
-bool Clip::enabled()
-{
-  return enabled_;
-}
-
-void Clip::set_enabled(bool e)
-{
-  enabled_ = e;
-}
-
 void Clip::reset_audio() {
-  if (UsesCacher()) {
-    cacher.ResetAudio();
-  }
   if (media() != nullptr && media()->get_type() == MEDIA_TYPE_SEQUENCE) {
 
     QVector<Clip*> nested_sequence_clips = media()->to_sequence()->GetAllClips();
@@ -208,9 +191,11 @@ void Clip::refresh() {
   replaced = false;
 
   // reinitializes all effects... just in case
+  /* TODO address this
   for (int i=0;i<effects.size();i++) {
     effects.at(i)->refresh();
   }
+  */
 }
 
 QVector<Marker> &Clip::get_markers() {
@@ -220,25 +205,8 @@ QVector<Marker> &Clip::get_markers() {
   return markers;
 }
 
-NodeGraph *Clip::pipeline()
-{
-  return &pipeline_;
-}
-
-int Clip::IndexOfEffect(Node *e)
-{
-  for (int i=0;i<effects.size();i++) {
-    if (effects.at(i).get() == e) {
-      return i;
-    }
-  }
-  return -1;
-}
-
 Clip::~Clip() {
-  if (IsOpen()) {
-    Close(true);
-  }
+
 }
 
 void Clip::Save(QXmlStreamWriter &stream)
@@ -246,7 +214,7 @@ void Clip::Save(QXmlStreamWriter &stream)
   stream.writeStartElement("clip");
   stream.writeAttribute("id", QString::number(load_id));
 
-  stream.writeAttribute("enabled", QString::number(enabled()));
+  stream.writeAttribute("enabled", QString::number(IsEnabled()));
   stream.writeAttribute("name", name());
   stream.writeAttribute("clipin", QString::number(clip_in()));
   stream.writeAttribute("in", QString::number(timeline_in()));
@@ -312,11 +280,13 @@ void Clip::Save(QXmlStreamWriter &stream)
     }
   }
 
+  /* TODO address this
   for (int k=0;k<effects.size();k++) {
     stream.writeStartElement("effect"); // effect
     effects.at(k)->save(stream);
     stream.writeEndElement(); // effect
   }
+  */
 
   stream.writeEndElement(); // clip
 }
@@ -391,7 +361,7 @@ void Clip::set_cached_frame_rate(double d)
   cached_fr_ = d;
 }
 
-const QString &Clip::name()
+QString Clip::name()
 {
   return name_;
 }
@@ -411,19 +381,14 @@ void Clip::set_speed(const ClipSpeed& d)
   speed_ = d;
 }
 
-AVRational Clip::time_base()
-{
-  return cacher.media_time_base();
-}
-
 Track *Clip::track()
 {
-  return track_;
+  return static_cast<Track*>(parent());
 }
 
 void Clip::set_track(Track *t)
 {
-  track_ = t;
+  setParent(t);
 }
 
 // timeline functions
@@ -454,7 +419,7 @@ long Clip::media_length() {
       case MEDIA_TYPE_FOOTAGE:
       {
         Footage* m = media_->to_footage();
-        const FootageStream* ms = m->get_stream_from_file_index(type() == olive::kTypeVideo, media_stream_index());
+        const FootageStream* ms = m->get_stream_from_file_index(subclip_type() == olive::kTypeVideo, media_stream_index());
         if (ms != nullptr && ms->infinite_length) {
           return LONG_MAX;
         } else {
@@ -521,10 +486,11 @@ void Clip::refactor_frame_rate(ComboAction* ca, double multiplier, bool change_t
   }
 
   // move keyframes
+  /* TODO address this
   for (int i=0;i<effects.size();i++) {
     NodePtr e = effects.at(i);
     for (int j=0;j<e->row_count();j++) {
-      EffectRow* r = e->row(j);
+      NodeIO* r = e->row(j);
       for (int l=0;l<r->FieldCount();l++) {
         EffectField* f = r->Field(l);
         for (int k=0;k<f->keyframes.size();k++) {
@@ -533,9 +499,11 @@ void Clip::refactor_frame_rate(ComboAction* ca, double multiplier, bool change_t
       }
     }
   }
+  */
 }
 
 void Clip::Open() {
+  /*
   if (!open_ && state_change_lock.tryLock()) {
     open_ = true;
 
@@ -554,9 +522,11 @@ void Clip::Open() {
       state_change_lock.unlock();
     }
   }
+  */
 }
 
-void Clip::Close(bool wait) {
+void Clip::Close() {
+  /*
   // thread safety, prevents Close() running from two separate threads simultaneously
   if (open_ && state_change_lock.tryLock()) {
     open_ = false;
@@ -590,132 +560,12 @@ void Clip::Close(bool wait) {
       state_change_lock.unlock();
     }
   }
+  */
 }
 
 bool Clip::IsOpen()
 {
   return open_;
-}
-
-void Clip::Cache(long playhead, bool scrubbing, QVector<Clip*>& nests, int playback_speed) {
-  cacher.Cache(playhead, scrubbing, nests, playback_speed);
-  cacher_frame = playhead;
-}
-
-bool Clip::Retrieve()
-{
-  bool ret = false;
-
-  if (UsesCacher()) {
-
-    // Retrieve the frame from the cacher that we requested in Cache().
-    AVFrame* frame = cacher.Retrieve();
-
-    // Wait for exclusive control of the queue to avoid any threading collisions
-    cacher.queue()->lock();
-
-    // Check if we retrieved a frame (nullptr) and if the queue stil contains this frame.
-    //
-    // `nullptr` is returned if the cacher failed to get any sort of frame and is uncommon, but we do need
-    // to handle it.
-    //
-    // We check the queue because in some situations (e.g. intensive scrubbing), in the time it took to gain
-    // exclusive control of the queue, the cacher may have deleted the frame.
-    // Therefore we check to ensure the queue still contains the frame now that we have exclusive control,
-    // to avoid any attempt to utilize now-freed memory.
-
-    if (frame != nullptr && cacher.queue()->contains(frame)) {
-
-      //if (frame->pts != texture_timestamp) {
-
-      bool allocate_data = false;
-
-      QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
-
-      // check if the opengl texture exists yet, create it if not
-      if (texture == 0) {
-
-        // create texture object
-        f->glGenTextures(1, &texture);
-
-        f->glBindTexture(GL_TEXTURE_2D, texture);
-
-        // set texture filtering to bilinear
-        f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        // set texture wrapping to clamp
-        f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-        // queue an allocation ahead
-        allocate_data = true;
-
-      } else {
-
-        f->glBindTexture(GL_TEXTURE_2D, texture);
-
-      }
-
-      int video_width = cacher.media_width();
-      int video_height = cacher.media_height();
-
-      const olive::PixelFormatInfo& pix_fmt_info = olive::pixel_formats.at(cacher.media_pixel_format());
-
-      f->glPixelStorei(GL_UNPACK_ROW_LENGTH, frame->linesize[0]/pix_fmt_info.bytes_per_pixel);
-
-      if (allocate_data) {
-
-        // the raw frame size may differ from the one we're using (e.g. a lower resolution proxy), so we make sure
-        // the texture is using the correct dimensions, but then treat it as if it's the original resolution in the
-        // composition
-        f->glTexImage2D(
-              GL_TEXTURE_2D,
-              0,
-              pix_fmt_info.internal_format,
-              video_width,
-              video_height,
-              0,
-              pix_fmt_info.pixel_format,
-              pix_fmt_info.pixel_type,
-              frame->data[0]
-            );
-
-      } else {
-
-        f->glTexSubImage2D(GL_TEXTURE_2D,
-                           0,
-                           0,
-                           0,
-                           video_width,
-                           video_height,
-                           pix_fmt_info.pixel_format,
-                           pix_fmt_info.pixel_type,
-                           frame->data[0]
-            );
-
-      }
-
-      f->glBindTexture(GL_TEXTURE_2D, 0);
-
-      f->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-
-      texture_timestamp = frame->pts;
-
-      ret = true;
-    } else {
-      qCritical() << "Failed to retrieve frame for clip" << name();
-    }
-
-    cacher.queue()->unlock();
-  }
-
-  return ret;
-}
-
-bool Clip::UsesCacher()
-{
-  return type() == olive::kTypeAudio || (media() != nullptr && media()->get_type() == MEDIA_TYPE_FOOTAGE);
 }
 
 ClipSpeed::ClipSpeed() :

@@ -28,7 +28,7 @@
 #include "global/config.h"
 #include "undo/undo.h"
 
-StringField::StringField(EffectRow* parent, bool rich_text) :
+StringField::StringField(NodeIO* parent, bool rich_text) :
   EffectField(parent, EffectField::EFFECT_FIELD_STRING),
   rich_text_(rich_text)
 {

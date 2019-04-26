@@ -141,12 +141,12 @@ QString TextEffect::description()
   return tr("Generate simple text over this clip");
 }
 
-EffectType TextEffect::type()
+EffectType TextEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }
 
-olive::TrackType TextEffect::subtype()
+olive::TrackType TextEffect::type()
 {
   return olive::kTypeVideo;
 }

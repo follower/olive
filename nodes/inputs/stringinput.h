@@ -1,9 +1,9 @@
 #ifndef STRINGINPUT_H
 #define STRINGINPUT_H
 
-#include "effects/effectrow.h"
+#include "effects/nodeio.h"
 
-class StringInput : public EffectRow
+class StringInput : public NodeIO
 {
   Q_OBJECT
 public:

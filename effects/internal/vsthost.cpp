@@ -264,12 +264,12 @@ QString VSTHost::description()
   return tr("Use a VST 2.x plugin on this clip's audio.");
 }
 
-EffectType VSTHost::type()
+EffectType VSTHost::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }
 
-olive::TrackType VSTHost::subtype()
+olive::TrackType VSTHost::type()
 {
   return olive::kTypeAudio;
 }

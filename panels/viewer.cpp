@@ -550,7 +550,7 @@ void Viewer::update_window_title() {
   if (seq == nullptr) {
     name = tr("(none)");
   } else {
-    name = seq->name;
+    name = seq->name();
   }
   setWindowTitle(QString("%1: %2").arg(panel_name, name));
 }
@@ -734,7 +734,7 @@ void Viewer::set_media(Media* m) {
       new_sequence = std::make_shared<Sequence>();
       created_sequence = true;
       new_sequence->wrapper_sequence = true;
-      new_sequence->name = footage->name;
+      new_sequence->SetName(footage->name);
 
       new_sequence->using_workarea = footage->using_inout;
       if (footage->using_inout) {

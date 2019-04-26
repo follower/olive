@@ -100,12 +100,12 @@ QString ShakeEffect::description()
   return tr("Simulate a camera shake movement.");
 }
 
-EffectType ShakeEffect::type()
+EffectType ShakeEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }
 
-olive::TrackType ShakeEffect::subtype()
+olive::TrackType ShakeEffect::type()
 {
   return olive::kTypeVideo;
 }

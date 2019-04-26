@@ -392,7 +392,7 @@ void OliveGlobal::PasteInternal(Sequence *s, bool insert)
 
         for (int j=0;j<olive::clipboard.Count();j++) {
           NodePtr e = std::static_pointer_cast<Node>(olive::clipboard.Get(j));
-          if (c->type() == e->subtype()) {
+          if (c->subclip_type() == e->subtype()) {
             int found = -1;
             if (ask_conflict) {
               replace = false;
@@ -456,13 +456,13 @@ void OliveGlobal::EffectMenuAction(QAction *q)
 {
   ComboAction* ca = new ComboAction();
 
-  NodeType node_type = static_cast<NodeType>(q->data().toInt());
+  SubClipNodeType node_type = static_cast<SubClipNodeType>(q->data().toInt());
   Node* n = olive::node_library[node_type].get();
 
   for (int i=0;i<effect_menu_selected_clips.size();i++) {
     Clip* c = effect_menu_selected_clips.at(i);
-    if (c->type() == n->subtype()) {
-      if (n->type() == EFFECT_TYPE_TRANSITION) {
+    if (c->subclip_type() == n->type()) {
+      if (n->subclip_type() == EFFECT_TYPE_TRANSITION) {
         if (c->opening_transition == nullptr) {
           ca->append(new AddTransitionCommand(c,
                                               nullptr,

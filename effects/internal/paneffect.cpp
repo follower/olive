@@ -50,12 +50,12 @@ QString PanEffect::description()
   return tr("Modifying the panning on a stereo audio clip.");
 }
 
-EffectType PanEffect::type()
+EffectType PanEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }
 
-olive::TrackType PanEffect::subtype()
+olive::TrackType PanEffect::type()
 {
   return olive::kTypeAudio;
 }

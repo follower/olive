@@ -1,9 +1,9 @@
 #ifndef COMBOINPUT_H
 #define COMBOINPUT_H
 
-#include "effects/effectrow.h"
+#include "effects/nodeio.h"
 
-class ComboInput : public EffectRow
+class ComboInput : public NodeIO
 {
   Q_OBJECT
 public:

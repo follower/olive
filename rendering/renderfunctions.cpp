@@ -260,7 +260,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
     if (c != nullptr) {
 
       // if clip is video and we're processing video
-      if (c->type() == params.type) {
+      if (c->subclip_type() == params.type) {
 
         bool clip_is_active = false;
 
@@ -269,7 +269,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
           Footage* m = c->media()->to_footage();
 
           // does the clip have a valid media source?
-          if (!m->invalid && !(c->type() == olive::kTypeAudio && !is_audio_device_set())) {
+          if (!m->invalid && !(c->subclip_type() == olive::kTypeAudio && !is_audio_device_set())) {
 
             // is the media process and ready?
             if (m->ready) {
@@ -286,7 +286,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
                 clip_is_active = true;
 
                 // increment audio track count
-                if (c->type() == olive::kTypeAudio) audio_track_count++;
+                if (c->subclip_type() == olive::kTypeAudio) audio_track_count++;
 
               } else if (c->IsOpen()) {
 
@@ -369,7 +369,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
     if (got_mutex && c->IsOpen()) {
       // if clip is a video clip
-      if (c->type() == olive::kTypeVideo) {
+      if (c->subclip_type() == olive::kTypeVideo) {
 
         // textureID variable contains texture to be drawn on screen at the end
         GLuint textureID = 0;
@@ -754,7 +754,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
             // == END FINAL DRAW ON SEQUENCE BUFFER ==
           }
         }
-      } else if (c->type() == olive::kTypeAudio) {
+      } else if (c->subclip_type() == olive::kTypeAudio) {
         if (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_SEQUENCE) {
           params.nests.append(c);
           compose_sequence(params);

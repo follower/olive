@@ -23,7 +23,7 @@
 
 #include "nodes/node.h"
 
-class PanEffect : public Node {
+class PanEffect : public SubClipNode {
   Q_OBJECT
 public:
   PanEffect(Clip* c);
@@ -31,8 +31,8 @@ public:
   virtual QString name() override;
   virtual QString id() override;
   virtual QString description() override;
-  virtual EffectType type() override;
-  virtual olive::TrackType subtype() override;
+  virtual EffectType subclip_type() override;
+  virtual olive::TrackType type() override;
   virtual NodePtr Create(Clip *c) override;
 
   virtual void process_audio(double timecode_start,
@@ -40,7 +40,7 @@ public:
                              float **samples,
                              int nb_samples,
                              int channel_count,
-                             int type) override;
+                             int subclip_type) override;
 
   DoubleInput* pan_val;
 };

@@ -106,7 +106,6 @@ SOURCES += \
     effects/internal/logarithmicfadetransition.cpp \
     effects/internal/cornerpineffect.cpp \
     global/math.cpp \
-    effects/effectrow.cpp \
     effects/effectgizmo.cpp \
     ui/resizablescrollbar.cpp \
     ui/sourceiconview.cpp \
@@ -142,8 +141,6 @@ SOURCES += \
     effects/internal/dropshadoweffect.cpp \
     rendering/renderfunctions.cpp \
     rendering/renderthread.cpp \
-    rendering/cacher.cpp \
-    rendering/clipqueue.cpp \
     rendering/audio.cpp \
     dialogs/clippropertiesdialog.cpp \
     rendering/framebufferobject.cpp \
@@ -174,7 +171,6 @@ SOURCES += \
     rendering/pixelformats.cpp \
     timeline/timelinefunctions.cpp \
     timeline/track.cpp \
-    timeline/tracklist.cpp \
     project/savethread.cpp \
     project/projectfunctions.cpp \
     ui/timelinearea.cpp \
@@ -200,7 +196,6 @@ SOURCES += \
     nodes/widgets/labelwidget.cpp \
     nodes/inputs/fileinput.cpp \
     nodes/widgets/buttonwidget.cpp \
-    nodes/nodegraph.cpp \
     nodes/nodes/nodeimageoutput.cpp \
     nodes/nodes/nodemedia.cpp \
     nodes/nodes/nodeshader.cpp \
@@ -210,7 +205,10 @@ SOURCES += \
     ui/nodeedgeui.cpp \
     decoders/ffmpegdecoder.cpp \
     decoders/ffmpegvideodecoder.cpp \
-    rendering/memorycache.cpp
+    rendering/memorycache.cpp \
+    effects/nodeio.cpp \
+    decoders/ffmpegaudiodecoder.cpp \
+    rendering/framecache.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -268,7 +266,6 @@ HEADERS += \
     effects/internal/logarithmicfadetransition.h \
     effects/internal/cornerpineffect.h \
     global/math.h \
-    effects/effectrow.h \
     effects/internal/cubetransition.h \
     effects/effectgizmo.h \
     ui/resizablescrollbar.h \
@@ -306,8 +303,6 @@ HEADERS += \
     effects/internal/dropshadoweffect.h \
     rendering/renderfunctions.h \
     rendering/renderthread.h \
-    rendering/clipqueue.h \
-    rendering/cacher.h \
     rendering/audio.h \
     dialogs/clippropertiesdialog.h \
     rendering/framebufferobject.h \
@@ -341,7 +336,6 @@ HEADERS += \
     timeline/ghost.h \
     timeline/timelinefunctions.h \
     timeline/track.h \
-    timeline/tracklist.h \
     project/savethread.h \
     project/projectfunctions.h \
     ui/timelinearea.h \
@@ -366,7 +360,6 @@ HEADERS += \
     nodes/widgets/labelwidget.h \
     nodes/inputs/fileinput.h \
     nodes/widgets/buttonwidget.h \
-    nodes/nodegraph.h \
     nodes/nodes/nodemedia.h \
     nodes/nodes/nodeimageoutput.h \
     nodes/nodes/nodeshader.h \
@@ -378,7 +371,10 @@ HEADERS += \
     ui/nodeedgeui.h \
     decoders/ffmpegdecoder.h \
     decoders/ffmpegvideodecoder.h \
-    rendering/memorycache.h
+    rendering/memorycache.h \
+    effects/nodeio.h \
+    decoders/ffmpegaudiodecoder.h \
+    rendering/framecache.h
 
 FORMS +=
 

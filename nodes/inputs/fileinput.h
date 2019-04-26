@@ -1,9 +1,9 @@
 #ifndef FILEINPUT_H
 #define FILEINPUT_H
 
-#include "effects/effectrow.h"
+#include "effects/nodeio.h"
 
-class FileInput : public EffectRow
+class FileInput : public NodeIO
 {
   Q_OBJECT
 public:

@@ -5,7 +5,7 @@
 #include <QGraphicsItem>
 
 class EffectUI;
-class EffectRow;
+class NodeIO;
 class NodeEdge;
 class Node;
 
@@ -28,7 +28,7 @@ protected:
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
-  EffectRow *GetRowFromIndex(int i);
+  NodeIO *GetRowFromIndex(int i);
   NodeUI* FindUIFromNode(Node* n);
   int GetRowY(int index);
 
@@ -36,8 +36,8 @@ private:
 
   QGraphicsPathItem* drag_line_;
   QPointF drag_line_start_;
-  EffectRow* drag_source_;
-  EffectRow* drag_destination_;
+  NodeIO* drag_source_;
+  NodeIO* drag_destination_;
   QPainterPath drag_path_;
 
   int clicked_socket_;

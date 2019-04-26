@@ -3,7 +3,7 @@
 
 #include "nodes/node.h"
 
-class NodeShader : public Node {
+class NodeShader : public SubClipNode {
   Q_OBJECT
 public:
   NodeShader(Clip *c,
@@ -16,10 +16,10 @@ public:
   virtual QString id() override;
   virtual QString category() override;
   virtual QString description() override;
-  virtual EffectType type() override;
-  virtual olive::TrackType subtype() override;
+  virtual EffectType subclip_type() override;
+  virtual olive::TrackType type() override;
   virtual bool IsCreatable() override;
-  virtual NodePtr Create(Clip *c) override;
+  virtual NodePtr Create(Node *c) override;
 
 private:
   QString name_;

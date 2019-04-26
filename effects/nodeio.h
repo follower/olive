@@ -49,7 +49,7 @@ class ClickableLabel;
  * Unlike EffectField, there's no reason to derive from EffectRow as it's simply a container of fields and a few
  * keyframe functions.
  */
-class EffectRow : public QObject {
+class NodeIO : public QObject {
   Q_OBJECT
 public:
 
@@ -84,7 +84,7 @@ public:
    * Whether keyframing can be enabled on this row or not. This is true by default. Some values you may want to prevent
    * the user from keyframing (e.g. the filename of a VST plugin), which can be done by setting this to false.
    */
-  EffectRow(Node* parent,
+  NodeIO(Node* parent,
             const QString& id,
             const QString& name,
             bool savable = true,
@@ -286,7 +286,7 @@ public:
    *
    * The edge to add (output) or replace the current edge (input).
    */
-  static void ConnectEdge(EffectRow* output, EffectRow* input);
+  static void ConnectEdge(NodeIO* output, NodeIO* input);
 
   /**
    * @brief Disconnect an edge

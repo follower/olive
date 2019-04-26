@@ -89,12 +89,12 @@ QString SolidEffect::description()
   return tr("Render a solid color over this clip.");
 }
 
-EffectType SolidEffect::type()
+EffectType SolidEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }
 
-olive::TrackType SolidEffect::subtype()
+olive::TrackType SolidEffect::type()
 {
   return olive::kTypeVideo;
 }

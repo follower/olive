@@ -9,7 +9,7 @@ int olive::timeline::kTrackDefaultHeight = 40;
 int olive::timeline::kTrackMinHeight = 30;
 int olive::timeline::kTrackHeightIncrement = 10;
 
-Track::Track(TrackList* parent, olive::TrackType type) :
+Track::Track(Node *parent, olive::TrackType type) :
   parent_(parent),
   type_(type),
   muted_(false),
@@ -19,7 +19,7 @@ Track::Track(TrackList* parent, olive::TrackType type) :
 {
 }
 
-Track *Track::copy(TrackList *parent)
+NodePtr Track::copy(Node* parent)
 {
   Track* t = new Track(parent, type_);
 
@@ -58,7 +58,7 @@ void Track::Save(QXmlStreamWriter &stream)
   stream.writeEndElement(); // track
 }
 
-olive::TrackType Track::type()
+olive::TrackType Track::track_type()
 {
   return type_;
 }

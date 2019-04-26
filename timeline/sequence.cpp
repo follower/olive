@@ -32,6 +32,7 @@
 #include "nodes/nodes.h"
 
 Sequence::Sequence() :
+  Node(nullptr),
   playhead(0),
   using_workarea(false),
   workarea_in(0),
@@ -103,6 +104,21 @@ void Sequence::Save(QXmlStreamWriter &stream)
   stream.writeEndElement();
 }
 
+QString Sequence::name()
+{
+  return name_;
+}
+
+void Sequence::SetName(const QString &n)
+{
+  name_ = n;
+}
+
+void Sequence::RenderVideoFrame(long frame)
+{
+  track_lists_.at(olive::kTypeVideo);
+}
+
 long Sequence::GetEndFrame() {
   long end_frame = 0;
 
@@ -146,7 +162,7 @@ void Sequence::Close()
   QVector<Clip*> all_clips = GetAllClips();
 
   for (int i=0;i<all_clips.size();i++) {
-    all_clips.at(i)->Close(true);
+    all_clips.at(i)->Close();
   }
 }
 
@@ -158,7 +174,7 @@ void Sequence::RefreshClipsUsingMedia(Media *m) {
     Clip* c = all_clips.at(i);
 
     if (m == nullptr || c->media() == m) {
-      c->Close(true);
+      c->Close();
       c->refresh();
     }
   }
@@ -235,16 +251,21 @@ void Sequence::AddClipsFromGhosts(ComboAction* ca, const QVector<Ghost>& ghosts)
     // Create default clip pipeline
     if (c->type() == olive::kTypeVideo) {
 
-      NodeMedia* media_node = static_cast<NodeMedia*>(c->pipeline()->AddNode(kMediaInput));
-      NodeImageOutput* output_node = static_cast<NodeImageOutput*>(c->pipeline()->AddNode(kImageOutput));
+      std::shared_ptr<NodeMedia> media_node = std::make_shared<NodeMedia>(c);
+      std::shared_ptr<NodeImageOutput> output_node = std::make_shared<NodeImageOutput>(c);
+      c->pipeline()->AddNode(media_node);
+      c->pipeline()->AddNode(output_node);
 
       if (olive::config.add_default_effects_to_clips) {
         // add default video effects
-        TransformEffect* transform_node = static_cast<TransformEffect*>(c->pipeline()->AddNode(kTransformEffect));
-        EffectRow::ConnectEdge(transform_node->matrix_output(), media_node->matrix_input());
+        std::shared_ptr<TransformEffect> transform_node = std::make_shared<TransformEffect>(c);
+        c->pipeline()->AddNode(transform_node);
+        NodeIO::ConnectEdge(transform_node->matrix_output(), media_node->matrix_input());
       }
 
-      EffectRow::ConnectEdge(media_node->texture_output(), output_node->texture_input());
+      NodeIO::ConnectEdge(media_node->texture_output(), output_node->texture_input());
+
+
     } else if (c->type() == olive::kTypeAudio) {
       // add default audio effects
       /* TODO address this

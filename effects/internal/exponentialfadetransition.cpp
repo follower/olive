@@ -42,12 +42,12 @@ QString ExponentialFadeTransition::description()
   return tr("An exponential audio fade that starts slow and ends fast.");
 }
 
-EffectType ExponentialFadeTransition::type()
+EffectType ExponentialFadeTransition::subclip_type()
 {
   return EFFECT_TYPE_TRANSITION;
 }
 
-olive::TrackType ExponentialFadeTransition::subtype()
+olive::TrackType ExponentialFadeTransition::type()
 {
   return olive::kTypeAudio;
 }

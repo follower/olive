@@ -33,19 +33,19 @@ extern "C" {
  *
  * A fairly simple wrapper for a QVector and QMutex that cleans up AVFrames automatically when removing them.
  */
-class ClipQueue {
+class FrameCache {
 public:
   /**
    * @brief ClipQueue Constructor
    */
-  ClipQueue();
+  FrameCache();
 
   /**
    * @brief ClipQueue Destructor
    *
    * Automatically clears queue freeing any memory consumed by any AVFrames
    */
-  ~ClipQueue();
+  ~FrameCache();
 
   // Thread safety (QMutex compatible)
   /**

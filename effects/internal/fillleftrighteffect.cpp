@@ -46,12 +46,12 @@ QString FillLeftRightEffect::description()
   return tr("Replaces either the left or right channel with the other");
 }
 
-EffectType FillLeftRightEffect::type()
+EffectType FillLeftRightEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }
 
-olive::TrackType FillLeftRightEffect::subtype()
+olive::TrackType FillLeftRightEffect::type()
 {
   return olive::kTypeAudio;
 }

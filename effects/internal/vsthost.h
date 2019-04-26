@@ -46,7 +46,7 @@ private:
   void destroy();
 };
 
-class VSTHost : public Node {
+class VSTHost : public SubClipNode {
   Q_OBJECT
 public:
   VSTHost(Clip* c);
@@ -55,8 +55,8 @@ public:
   virtual QString name() override;
   virtual QString id() override;
   virtual QString description() override;
-  virtual EffectType type() override;
-  virtual olive::TrackType subtype() override;
+  virtual EffectType subclip_type() override;
+  virtual olive::TrackType type() override;
   virtual NodePtr Create(Clip *c) override;
 
   virtual void process_audio(double timecode_start,
@@ -64,7 +64,7 @@ public:
                              float **samples,
                              int nb_samples,
                              int channel_count,
-                             int type) override;
+                             int subclip_type) override;
 
   virtual void custom_load(QXmlStreamReader& stream) override;
   virtual void save(QXmlStreamWriter& stream) override;

@@ -46,12 +46,12 @@ QString CrossDissolveTransition::description()
   return tr("Dissolve clips evenly.");
 }
 
-EffectType CrossDissolveTransition::type()
+EffectType CrossDissolveTransition::subclip_type()
 {
   return EFFECT_TYPE_TRANSITION;
 }
 
-olive::TrackType CrossDissolveTransition::subtype()
+olive::TrackType CrossDissolveTransition::type()
 {
   return olive::kTypeVideo;
 }

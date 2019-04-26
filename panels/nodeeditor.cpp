@@ -150,7 +150,7 @@ void NodeEditor::LoadEdges()
   }
 }
 
-void NodeEditor::ConnectRow(EffectRow *row)
+void NodeEditor::ConnectRow(NodeIO *row)
 {
   if (!connected_rows_.contains(row)) {
     connect(row, SIGNAL(EdgesChanged()), this, SLOT(ReloadEdges()));
@@ -187,7 +187,7 @@ void NodeEditor::ContextMenu()
 {
   if (!open_effects_.isEmpty()) {
     Clip* c = open_effects_.first()->GetEffect()->parent_clip;
-    olive::Global->ShowEffectMenu(EFFECT_TYPE_EFFECT, c->type(), {c});
+    olive::Global->ShowEffectMenu(EFFECT_TYPE_EFFECT, c->subclip_type(), {c});
   }
 }
 

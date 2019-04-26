@@ -1,9 +1,9 @@
 #ifndef BUTTONWIDGET_H
 #define BUTTONWIDGET_H
 
-#include "effects/effectrow.h"
+#include "effects/nodeio.h"
 
-class ButtonWidget : public EffectRow
+class ButtonWidget : public NodeIO
 {
 public:
   ButtonWidget(Node* parent, const QString& name, const QString& text);

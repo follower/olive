@@ -1,9 +1,9 @@
 #ifndef BOOLINPUT_H
 #define BOOLINPUT_H
 
-#include "effects/effectrow.h"
+#include "effects/nodeio.h"
 
-class BoolInput : public EffectRow
+class BoolInput : public NodeIO
 {
   Q_OBJECT
 public:

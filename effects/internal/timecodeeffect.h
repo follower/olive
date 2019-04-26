@@ -26,7 +26,7 @@
 #include <QFont>
 #include <QImage>
 
-class TimecodeEffect : public Node {
+class TimecodeEffect : public SubClipNode {
   Q_OBJECT
 public:
   TimecodeEffect(Clip* c);
@@ -35,8 +35,8 @@ public:
   virtual QString id() override;
   virtual QString category() override;
   virtual QString description() override;
-  virtual EffectType type() override;
-  virtual olive::TrackType subtype() override;
+  virtual EffectType subclip_type() override;
+  virtual olive::TrackType type() override;
   virtual NodePtr Create(Clip *c) override;
 
   virtual void redraw(double timecode) override;

@@ -33,12 +33,12 @@ enum TransitionType {
 class Transition;
 using TransitionPtr = std::shared_ptr<Transition>;
 
-class Transition : public Node {
+class Transition : public SubClipNode {
   Q_OBJECT
 public:
   Transition(Clip* c);
 
-  virtual NodePtr copy(Clip* c) override;
+  virtual NodePtr copy(Node* c) override;
 
   Clip* secondary_clip;
 
@@ -54,6 +54,8 @@ public:
 
 private:
   DoubleInput* length_field;
+
+  Clip* GetClipParent();
 
 private slots:
   void UpdateMaximumLength();

@@ -26,6 +26,7 @@
 
 #include "panels/project.h"
 #include "panels/panels.h"
+#include "rendering/pixelformats.h"
 
 #include "debug.h"
 

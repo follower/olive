@@ -26,7 +26,7 @@
 #include "nodes/node.h"
 #include "undo/undo.h"
 
-FileField::FileField(EffectRow* parent) :
+FileField::FileField(NodeIO* parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_FILE)
 {
   // Set default value to an empty string

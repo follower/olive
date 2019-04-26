@@ -184,7 +184,7 @@ void Media::update_tooltip(const QString& error) {
                                                    "\nFrame Rate: %4"
                                                    "\nAudio Frequency: %5"
                                                    "\nAudio Layout: %6").arg(
-          s->name,
+          s->name(),
           QString::number(s->width),
           QString::number(s->height),
           QString::number(s->frame_rate),
@@ -208,7 +208,7 @@ int Media::get_type() {
 const QString &Media::get_name() {
   switch (type) {
   case MEDIA_TYPE_FOOTAGE: return to_footage()->name;
-  case MEDIA_TYPE_SEQUENCE: return to_sequence()->name;
+  case MEDIA_TYPE_SEQUENCE: return to_sequence()->name();
   default: return folder_name;
   }
 }
@@ -216,7 +216,7 @@ const QString &Media::get_name() {
 void Media::set_name(const QString &n) {
   switch (type) {
   case MEDIA_TYPE_FOOTAGE: to_footage()->name = n; break;
-  case MEDIA_TYPE_SEQUENCE: to_sequence()->name = n; break;
+  case MEDIA_TYPE_SEQUENCE: to_sequence()->SetName(n); break;
   case MEDIA_TYPE_FOLDER: folder_name = n; break;
   }
 }

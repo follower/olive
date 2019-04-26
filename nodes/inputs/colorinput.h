@@ -1,9 +1,9 @@
 #ifndef COLORINPUT_H
 #define COLORINPUT_H
 
-#include "effects/effectrow.h"
+#include "effects/nodeio.h"
 
-class ColorInput : public EffectRow
+class ColorInput : public NodeIO
 {
   Q_OBJECT
 public:

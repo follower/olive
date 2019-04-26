@@ -29,16 +29,30 @@
 #include "selection.h"
 #include "tracklist.h"
 #include "ghost.h"
+#include "rendering/memorycache.h"
 
-class Sequence : public QObject {
+class Sequence : public Node {
   Q_OBJECT
 public:
   Sequence();
   SequencePtr copy();
 
+  virtual void Open() override;
+  virtual void Close() override;
+  virtual bool IsOpen() override;
+  virtual void Process(double time) override;
+
+  /**
+   * @brief Temporary debugging function for new DAG system
+   * @return
+   */
+  GLuint GetTexture();
+
   void Save(QXmlStreamWriter& stream);
 
-  QString name;
+  virtual QString name() override;
+  void SetName(const QString& n);
+
   int width;
   int height;
   double frame_rate;
@@ -48,19 +62,6 @@ public:
   long GetEndFrame();
   QVector<Clip*> GetAllClips();
   TrackList* GetTrackList(olive::TrackType type);
-
-  /**
-   * @brief Close all open clips in a Sequence
-   *
-   * Closes any currently open clips on a Sequence and waits for them to close before returning. This may be slow as a
-   * result on large Sequence objects. If a Clip is a nested Sequence, this function calls itself recursively on that
-   * Sequence too.
-   *
-   * @param s
-   *
-   * The Sequence to close all clips on.
-   */
-  void Close();
 
   void RefreshClipsUsingMedia(Media* m = nullptr);
   QVector<Clip*> SelectedClips(bool containing = true);
@@ -126,9 +127,15 @@ signals:
 private:
   QVector<TrackList*> track_lists_;
 
+  QString name_;
+
   ClipPtr SplitClip(ComboAction* ca, bool transitions, Clip *clip, long frame);
   ClipPtr SplitClip(ComboAction* ca, bool transitions, Clip *clip, long frame, long post_in);
   bool SplitSelection(ComboAction* ca, QVector<Selection> selections);
+
+  MemoryCache::MemoryBuffer buffer_;
+
+  using Node::copy;
 };
 
 using SequencePtr = std::shared_ptr<Sequence>;

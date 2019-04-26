@@ -42,7 +42,6 @@
 #include "ui/icons.h"
 #include "ui/viewerwidget.h"
 #include "rendering/audio.h"
-#include "rendering/cacher.h"
 #include "rendering/renderfunctions.h"
 #include "global/config.h"
 #include "global/clipboard.h"
@@ -276,7 +275,7 @@ void Timeline::add_transition() {
   for (int i=0;i<selected_clips.size();i++) {
     Clip* c = selected_clips.at(i);
 
-    NodeType transition_to_add = (c->type() == olive::kTypeVideo) ? kCrossDissolveTransition
+    SubClipNodeType transition_to_add = (c->type() == olive::kTypeVideo) ? kCrossDissolveTransition
                                                                   : kLinearFadeTransition;
 
     if (c->opening_transition == nullptr) {
@@ -326,7 +325,7 @@ void Timeline::nest() {
       // create "nest" sequence with the same attributes as the current sequence
       SequencePtr s = std::make_shared<Sequence>();
 
-      s->name = olive::project_model.GetNextSequenceName(tr("Nested Sequence"));
+      s->SetName(olive::project_model.GetNextSequenceName(tr("Nested Sequence")));
       s->width = sequence_->width;
       s->height = sequence_->height;
       s->frame_rate = sequence_->frame_rate;
@@ -344,7 +343,7 @@ void Timeline::nest() {
 
         // copy to new
         Track* track = s->GetTrackList(c->type())->TrackAt(c->track()->Index());
-        ClipPtr copy = selected_clips.at(i)->copy(track);
+        ClipPtr copy = std::static_pointer_cast<Clip>(selected_clips.at(i)->copy(track));
         copy->set_timeline_in(copy->timeline_in() - earliest_point);
         copy->set_timeline_out(copy->timeline_out() - earliest_point);
         track->AddClip(copy);
@@ -515,7 +514,7 @@ void Timeline::toggle_enable_on_selected_clips() {
       // add each selected clip to the action
       for (int i=0;i<selected_clips.size();i++) {
         Clip* c = selected_clips.at(i);
-        set_action->AddSetting(c, !c->enabled());
+        set_action->AddSetting(c, !c->IsEnabled());
       }
 
       // push the action
@@ -876,8 +875,8 @@ void Timeline::transition_tool_click() {
   transition_menu.addAction(tr("Video Transitions"))->setEnabled(false);
 
   for (int i=0;i<olive::node_library.size();i++) {
-    NodePtr node = olive::node_library.at(i);
-    if (node != nullptr && node->type() == EFFECT_TYPE_TRANSITION && node->subtype() == olive::kTypeVideo) {
+    SubClipNodePtr node = olive::node_library.at(i);
+    if (node != nullptr && node->subclip_type() == EFFECT_TYPE_TRANSITION && node->type() == olive::kTypeVideo) {
       QAction* a = transition_menu.addAction(node->name());
       a->setData(i);
     }
@@ -888,8 +887,8 @@ void Timeline::transition_tool_click() {
   transition_menu.addAction(tr("Audio Transitions"))->setEnabled(false);
 
   for (int i=0;i<olive::node_library.size();i++) {
-    NodePtr node = olive::node_library.at(i);
-    if (node != nullptr && node->type() == EFFECT_TYPE_TRANSITION && node->subtype() == olive::kTypeAudio) {
+    SubClipNodePtr node = olive::node_library.at(i);
+    if (node != nullptr && node->subclip_type() == EFFECT_TYPE_TRANSITION && node->type() == olive::kTypeAudio) {
       QAction* a = transition_menu.addAction(node->name());
       a->setData(i);
     }
@@ -903,7 +902,7 @@ void Timeline::transition_tool_click() {
 }
 
 void Timeline::transition_menu_select(QAction* a) {
-  transition_tool_meta = static_cast<NodeType>(a->data().toInt());
+  transition_tool_meta = static_cast<SubClipNodeType>(a->data().toInt());
   timeline_area->setCursor(Qt::CrossCursor);
   olive::timeline::current_tool = olive::timeline::TIMELINE_TOOL_TRANSITION;
   toolTransitionButton->setChecked(true);
@@ -922,7 +921,7 @@ void Timeline::UpdateTitle() {
   if (sequence_ == nullptr) {
     setWindowTitle(title + tr("(none)"));
   } else {
-    setWindowTitle(title + sequence_->name);
+    setWindowTitle(title + sequence_->name());
     update_ui(false);
   }
 }

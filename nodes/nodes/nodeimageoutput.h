@@ -3,7 +3,7 @@
 
 #include "nodes/node.h"
 
-class NodeImageOutput : public Node
+class NodeImageOutput : public SubClipNode
 {
 public:
   NodeImageOutput(Clip* c);
@@ -14,14 +14,14 @@ public:
   virtual QString id() override;
   virtual QString category() override;
   virtual QString description() override;
-  virtual EffectType type() override;
-  virtual olive::TrackType subtype() override;
-  virtual NodePtr Create(Clip *c) override;
+  virtual EffectType subclip_type() override;
+  virtual olive::TrackType type() override;
+  virtual NodePtr Create(Node *c) override;
 
-  EffectRow* texture_input();
+  NodeIO* texture_input();
 
 private:
-  EffectRow* input_texture_;
+  NodeIO* input_texture_;
 };
 
 #endif // NODEIMAGEOUTPUT_H

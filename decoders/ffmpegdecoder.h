@@ -3,7 +3,7 @@
 
 #include <QString>
 
-#include "rendering/clipqueue.h"
+#include "rendering/framecache.h"
 #include "decoder.h"
 
 extern "C" {
@@ -39,7 +39,7 @@ protected:
   void HandleFFError(int error_code);
   void Error(const QString& s);
 
-  ClipQueue frame_cache_;
+  FrameCache frame_cache_;
 
   AVFormatContext* fmt_ctx_;
   AVCodecContext* codec_ctx_;

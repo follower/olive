@@ -3,9 +3,9 @@
 
 #include <QVector2D>
 
-#include "effects/effectrow.h"
+#include "effects/nodeio.h"
 
-class VecInput : public EffectRow
+class VecInput : public NodeIO
 {
   Q_OBJECT
 public:

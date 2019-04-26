@@ -48,7 +48,6 @@ extern "C" {
 #include "undo/undostack.h"
 #include "ui/mainwindow.h"
 #include "global/config.h"
-#include "rendering/cacher.h"
 #include "dialogs/replaceclipmediadialog.h"
 #include "panels/effectcontrols.h"
 #include "dialogs/mediapropertiesdialog.h"
@@ -391,7 +390,8 @@ void Project::delete_selected_media() {
               // we found a reference, so we know we'll need to ask if the user wants to delete it
               QMessageBox confirm(this);
               confirm.setWindowTitle(tr("Delete media in use?"));
-              confirm.setText(tr("The media '%1' is currently used in '%2'. Deleting it will remove all instances in the sequence. Are you sure you want to do this?").arg(media->name, s->name));
+              confirm.setText(tr("The media '%1' is currently used in '%2'. Deleting it will remove all instances in "
+                                 "the sequence. Are you sure you want to do this?").arg(media->name, s->name()));
               QAbstractButton* yes_button = confirm.addButton(QMessageBox::Yes);
               QAbstractButton* skip_button = nullptr;
               if (items.size() > 1) skip_button = confirm.addButton(tr("Skip"), QMessageBox::NoRole);

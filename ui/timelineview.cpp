@@ -143,7 +143,7 @@ void TimelineView::show_context_menu(const QPoint& pos) {
       bool audio_clips_are_selected = false;
 
       for (int i=0;i<selected_clips.size();i++) {
-        if (selected_clips.at(i)->type() == olive::kTypeVideo) {
+        if (selected_clips.at(i)->subclip_type() == olive::kTypeVideo) {
           video_clips_are_selected = true;
         } else {
           audio_clips_are_selected = true;
@@ -626,7 +626,7 @@ void TimelineView::mousePressEvent(QMouseEvent *event) {
 
       // if the track the user clicked is correct for the type of object we're adding
 
-      if (track_list_->type() == create_type) {
+      if (track_list_->subclip_type() == create_type) {
         Ghost g;
         g.in = g.old_in = g.out = g.old_out = ParentTimeline()->drag_frame_start;
 
@@ -1836,7 +1836,7 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
       // Prevent any clips from going below the "zeroeth" track
 
-      if (ParentTimeline()->importing || g.track->type() == track_list_->type()) {
+      if (ParentTimeline()->importing || g.track->subclip_type() == track_list_->subclip_type()) {
 
         int track_validator = g.track->Index() + track_diff;
         if (track_validator < 0) {
@@ -1929,7 +1929,7 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
         g.track_movement = getTrackIndexFromScreenPoint(mouse_pos.y());
 
-      } else if (g.track->type() == track_list_->type() && g.transition == nullptr) {
+      } else if (g.track->subclip_type() == track_list_->subclip_type() && g.transition == nullptr) {
 
         g.track_movement = track_diff;
 
@@ -2747,7 +2747,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
           // cursor is hovering over a clip
 
           // check if the clip and transition are both the same sign (meaning video/audio are the same)
-          if (track_list_->type() == olive::node_library[ParentTimeline()->transition_tool_meta]->subtype()) {
+          if (track_list_->subclip_type() == olive::node_library[ParentTimeline()->transition_tool_meta]->subtype()) {
 
             // the range within which the transition tool will assume the user wants to make a shared transition
             // between two clips rather than just one transition on one clip
@@ -2926,7 +2926,7 @@ void TimelineView::paintEvent(QPaintEvent*) {
                 // draw thumbnail/waveform
                 long media_length = clip->media_length();
 
-                if (clip->type() == olive::kTypeVideo) {
+                if (clip->subclip_type() == olive::kTypeVideo) {
                   // draw thumbnail
                   int thumb_y = p.fontMetrics().height()+olive::timeline::kClipTextPadding+olive::timeline::kClipTextPadding;
                   if (thumb_x < width() && thumb_y < height()) {
@@ -3205,7 +3205,7 @@ void TimelineView::paintEvent(QPaintEvent*) {
       for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
         const Ghost& g = ParentTimeline()->ghosts.at(i);
         first_ghost = qMin(first_ghost, g.in);
-        if (g.track->type() == track_list_->type()) {
+        if (g.track->subclip_type() == track_list_->subclip_type()) {
 
           int ghost_x = ParentTimeline()->getTimelineScreenPointFromFrame(g.in);
           int ghost_y = getScreenPointFromTrackIndex(g.track->Index() + g.track_movement);

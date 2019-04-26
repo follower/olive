@@ -37,12 +37,12 @@ QString LinearFadeTransition::description()
   return tr("An linear audio fade that fades evenly at a constant rate.");
 }
 
-EffectType LinearFadeTransition::type()
+EffectType LinearFadeTransition::subclip_type()
 {
   return EFFECT_TYPE_TRANSITION;
 }
 
-olive::TrackType LinearFadeTransition::subtype()
+olive::TrackType LinearFadeTransition::type()
 {
   return olive::kTypeAudio;
 }

@@ -116,13 +116,13 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
   // for all the effects to finish loading
   olive::effects_loaded.lock();
 
-  NodeType type = kInvalidNode;
+  SubClipNodeType type = kInvalidNode;
 
   // find effect with this name
   if (!effect_id.isEmpty()) {
     for (int i=0;i<olive::node_library.size();i++) {
       if (i != kInvalidNode && olive::node_library.at(i)->id() == effect_id) {
-        type = static_cast<NodeType>(i);
+        type = static_cast<SubClipNodeType>(i);
         break;
       }
     }

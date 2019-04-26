@@ -18,7 +18,7 @@
 
 ***/
 
-#include "effectrow.h"
+#include "nodeio.h"
 
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -37,7 +37,7 @@
 #include "ui/keyframenavigator.h"
 #include "ui/clickablelabel.h"
 
-EffectRow::EffectRow(Node *parent,
+NodeIO::NodeIO(Node *parent,
                      const QString &id,
                      const QString &name,
                      bool savable,
@@ -55,7 +55,7 @@ EffectRow::EffectRow(Node *parent,
   parent->AddRow(this);
 }
 
-void EffectRow::AddField(EffectField *field)
+void NodeIO::AddField(EffectField *field)
 {
   field->setParent(this);
 
@@ -65,12 +65,12 @@ void EffectRow::AddField(EffectField *field)
   fields_.append(field);
 }
 
-bool EffectRow::ShouldUseConnectedValue()
+bool NodeIO::ShouldUseConnectedValue()
 {
   return (!node_edges_.isEmpty() && IsNodeInput());
 }
 
-QVariant EffectRow::GetConnectedValue(double timecode)
+QVariant NodeIO::GetConnectedValue(double timecode)
 {
   Q_ASSERT(ShouldUseConnectedValue());
 
@@ -78,21 +78,21 @@ QVariant EffectRow::GetConnectedValue(double timecode)
   return node_edges_.first()->output()->GetValueAt(timecode);
 }
 
-void EffectRow::AddAcceptedNodeInput(olive::nodes::DataType type)
+void NodeIO::AddAcceptedNodeInput(olive::nodes::DataType type)
 {
   Q_ASSERT(output_type_ == olive::nodes::kInvalid);
 
   accepted_inputs_.append(type);
 }
 
-void EffectRow::ConnectEdge(EffectRow *output, EffectRow *input)
+void NodeIO::ConnectEdge(NodeIO *output, NodeIO *input)
 {
   // Make sure one is an output and one is an input
   Q_ASSERT(output->IsNodeInput() != input->IsNodeInput());
 
   // Swap them if necessary
   if (input->IsNodeOutput()) {
-    EffectRow* temp = output;
+    NodeIO* temp = output;
     output = input;
     input = temp;
   }
@@ -110,10 +110,10 @@ void EffectRow::ConnectEdge(EffectRow *output, EffectRow *input)
   emit output->EdgesChanged();
 }
 
-void EffectRow::DisconnectEdge(NodeEdgePtr edge)
+void NodeIO::DisconnectEdge(NodeEdgePtr edge)
 {
-  EffectRow* output = edge->output();
-  EffectRow* input = edge->input();
+  NodeIO* output = edge->output();
+  NodeIO* input = edge->input();
 
   output->node_edges_.removeAll(edge);
   input->node_edges_.removeAll(edge);
@@ -121,33 +121,33 @@ void EffectRow::DisconnectEdge(NodeEdgePtr edge)
   emit output->EdgesChanged();
 }
 
-QVector<NodeEdgePtr> EffectRow::edges()
+QVector<NodeEdgePtr> NodeIO::edges()
 {
   return node_edges_;
 }
 
-bool EffectRow::IsKeyframing() {
+bool NodeIO::IsKeyframing() {
   return keyframing_;
 }
 
-void EffectRow::SetKeyframingInternal(bool b) {
-  if (GetParentEffect()->type() != EFFECT_TYPE_TRANSITION) {
+void NodeIO::SetKeyframingInternal(bool b) {
+  if (GetParentEffect()->subclip_type() != EFFECT_TYPE_TRANSITION) {
     keyframing_ = b;
     emit KeyframingSetChanged(keyframing_);
   }
 }
 
-bool EffectRow::IsSavable()
+bool NodeIO::IsSavable()
 {
   return savable_;
 }
 
-bool EffectRow::IsKeyframable()
+bool NodeIO::IsKeyframable()
 {
   return keyframable_;
 }
 
-QVariant EffectRow::GetValueAt(double timecode)
+QVariant NodeIO::GetValueAt(double timecode)
 {
   if (ShouldUseConnectedValue()) {
 
@@ -163,7 +163,7 @@ QVariant EffectRow::GetValueAt(double timecode)
   }
 }
 
-void EffectRow::SetValueAt(double timecode, const QVariant &value)
+void NodeIO::SetValueAt(double timecode, const QVariant &value)
 {
   if (FieldCount() == 1) {
     Field(0)->SetValueAt(timecode, value);
@@ -172,21 +172,21 @@ void EffectRow::SetValueAt(double timecode, const QVariant &value)
   }
 }
 
-void EffectRow::SetEnabled(bool enabled)
+void NodeIO::SetEnabled(bool enabled)
 {
   for (int i=0;i<FieldCount();i++) {
     Field(i)->SetEnabled(enabled);
   }
 }
 
-void EffectRow::SetOutputDataType(olive::nodes::DataType type)
+void NodeIO::SetOutputDataType(olive::nodes::DataType type)
 {
   Q_ASSERT(accepted_inputs_.isEmpty());
 
   output_type_ = type;
 }
 
-bool EffectRow::CanAcceptDataType(olive::nodes::DataType type)
+bool NodeIO::CanAcceptDataType(olive::nodes::DataType type)
 {
   if (!IsNodeInput()) {
     return false;
@@ -195,22 +195,22 @@ bool EffectRow::CanAcceptDataType(olive::nodes::DataType type)
   return accepted_inputs_.contains(type);
 }
 
-olive::nodes::DataType EffectRow::OutputDataType()
+olive::nodes::DataType NodeIO::OutputDataType()
 {
   return output_type_;
 }
 
-bool EffectRow::IsNodeInput()
+bool NodeIO::IsNodeInput()
 {
   return !accepted_inputs_.isEmpty();
 }
 
-bool EffectRow::IsNodeOutput()
+bool NodeIO::IsNodeOutput()
 {
   return output_type_ != olive::nodes::kInvalid;
 }
 
-void EffectRow::SetKeyframingEnabled(bool enabled) {
+void NodeIO::SetKeyframingEnabled(bool enabled) {
   if (enabled == keyframing_) {
     return;
   }
@@ -262,7 +262,7 @@ void EffectRow::SetKeyframingEnabled(bool enabled) {
   }
 }
 
-void EffectRow::GoToPreviousKeyframe() {
+void NodeIO::GoToPreviousKeyframe() {
   long key = LONG_MIN;
   Clip* c = GetParentEffect()->parent_clip;
   long sequence_playhead = c->track()->sequence()->playhead;
@@ -290,7 +290,7 @@ void EffectRow::GoToPreviousKeyframe() {
   if (key != LONG_MIN) panel_sequence_viewer->seek(key);
 }
 
-void EffectRow::ToggleKeyframe() {
+void NodeIO::ToggleKeyframe() {
   Clip* c = GetParentEffect()->parent_clip;
   long sequence_playhead = c->track()->sequence()->playhead;
 
@@ -360,7 +360,7 @@ void EffectRow::ToggleKeyframe() {
   update_ui(false);
 }
 
-void EffectRow::GoToNextKeyframe() {
+void NodeIO::GoToNextKeyframe() {
   long key = LONG_MAX;
   Clip* c = GetParentEffect()->parent_clip;
   for (int i=0;i<FieldCount();i++) {
@@ -375,11 +375,11 @@ void EffectRow::GoToNextKeyframe() {
   if (key != LONG_MAX) panel_sequence_viewer->seek(key);
 }
 
-void EffectRow::FocusRow() {
+void NodeIO::FocusRow() {
   panel_graph_editor->set_row(this);
 }
 
-void EffectRow::SetKeyframeOnAllFields(ComboAction* ca) {
+void NodeIO::SetKeyframeOnAllFields(ComboAction* ca) {
   for (int i=0;i<FieldCount();i++) {
     EffectField* field = Field(i);
 
@@ -394,19 +394,19 @@ void EffectRow::SetKeyframeOnAllFields(ComboAction* ca) {
   panel_effect_controls->update_keyframes();
 }
 
-Node *EffectRow::GetParentEffect()
+Node *NodeIO::GetParentEffect()
 {
   return static_cast<Node*>(parent());
 }
 
-const QString &EffectRow::name() {
+const QString &NodeIO::name() {
   return name_;
 }
 
-EffectField* EffectRow::Field(int i) {
+EffectField* NodeIO::Field(int i) {
   return fields_.at(i);
 }
 
-int EffectRow::FieldCount() {
+int NodeIO::FieldCount() {
   return fields_.size();
 }

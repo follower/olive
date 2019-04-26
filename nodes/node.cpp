@@ -60,10 +60,11 @@
 
 QVector<NodePtr> olive::node_library;
 
-Node::Node(Clip* c) :
-  parent_clip(c),
+Node::Node(Node *parent) :
+  QObject(parent),
   enabled_(true),
-  expanded_(true)
+  expanded_(true),
+  pipeline_(this)
 {
 }
 
@@ -79,31 +80,26 @@ Node::~Node() {
   }
 }
 
-QString Node::category()
+olive::TrackType Node::type()
 {
-  return QString();
+  return olive::kTypeInvalid;
 }
 
-bool Node::IsCreatable()
-{
-  return true;
-}
-
-void Node::AddRow(EffectRow *row)
+void Node::AddRow(NodeIO *row)
 {
   row->setParent(this);
   rows.append(row);
 }
 
-int Node::IndexOfRow(EffectRow *row)
+int Node::IndexOfRow(NodeIO *row)
 {
   return rows.indexOf(row);
 }
 
 void Node::copy_field_keyframes(NodePtr e) {
   for (int i=0;i<rows.size();i++) {
-    EffectRow* row = rows.at(i);
-    EffectRow* copy_row = e->rows.at(i);
+    NodeIO* row = rows.at(i);
+    NodeIO* copy_row = e->rows.at(i);
     copy_row->SetKeyframingInternal(row->IsKeyframing());
     for (int j=0;j<row->FieldCount();j++) {
       // Get field from this (the source) effect
@@ -121,7 +117,7 @@ void Node::copy_field_keyframes(NodePtr e) {
   }
 }
 
-EffectRow* Node::row(int i) {
+NodeIO* Node::row(int i) {
   return rows.at(i);
 }
 
@@ -157,8 +153,8 @@ QVector<NodeEdgePtr> Node::GetAllEdges()
 void Node::refresh() {}
 
 void Node::FieldChanged() {
-  // Update the UI if a field has been modified, but don't both if this effect is inactive
-  if (parent_clip != nullptr) {
+  // Update the UI if a field has been modified, but don't bother if this effect is inactive
+  if (parent() != nullptr) {
     update_ui(false);
   }
 }
@@ -387,7 +383,7 @@ void Node::save(QXmlStreamWriter& stream) {
 void Node::load_from_string(const QByteArray &s) {
   // clear existing keyframe data
   for (int i=0;i<rows.size();i++) {
-    EffectRow* row = rows.at(i);
+    NodeIO* row = rows.at(i);
     row->SetKeyframingInternal(false);
     for (int j=0;j<row->FieldCount();j++) {
       EffectField* field = row->Field(j);
@@ -455,16 +451,56 @@ const QPointF &Node::pos()
   return pos_;
 }
 
-NodePtr Node::copy(Clip *c) {
+NodePtr Node::copy(Node *c) {
   NodePtr copy = Create(c);
   copy->SetEnabled(IsEnabled());
   copy_field_keyframes(copy);
   return copy;
 }
 
-void Node::gizmo_draw(double, GLTextureCoords &) {}
+int GetNodeLibraryIndexFromId(const QString& id) {
+  for (int i=0;i<olive::node_library.size();i++) {
+    if (olive::node_library.at(i)->id() == id) {
+      return i;
+    }
+  }
 
-void Node::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, double timecode, bool done) {
+  return -1;
+}
+
+SubClipNode::SubClipNode(Clip *c) :
+  Node(c)
+{
+}
+
+Clip *SubClipNode::GetClipParent()
+{
+  return static_cast<Clip*>(parent());
+}
+
+double SubClipNode::Now()
+{
+  return playhead_to_clip_seconds(GetClipParent(), GetClipParent()->track()->sequence()->playhead);
+}
+
+long SubClipNode::NowInFrames()
+{
+  return playhead_to_clip_frame(GetClipParent(), GetClipParent()->track()->sequence()->playhead);
+}
+
+QString SubClipNode::category()
+{
+  return QString();
+}
+
+bool SubClipNode::IsCreatable()
+{
+  return true;
+}
+
+void SubClipNode::gizmo_draw(double, GLTextureCoords &) {}
+
+void SubClipNode::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, double timecode, bool done) {
   // Loop through each gizmo to find `gizmo`
   for (int i=0;i<gizmos.size();i++) {
 
@@ -533,7 +569,7 @@ void Node::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, double
   }
 }
 
-void Node::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatrix4x4& projection) {
+void SubClipNode::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatrix4x4& projection) {
   for (int i=0;i<gizmos.size();i++) {
     EffectGizmo* g = gizmos.at(i);
 
@@ -554,26 +590,6 @@ void Node::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatrix4x4& pro
   }
 }
 
-bool Node::are_gizmos_enabled() {
+bool SubClipNode::are_gizmos_enabled() {
   return (gizmos.size() > 0);
-}
-
-double Node::Now()
-{
-  return playhead_to_clip_seconds(parent_clip, parent_clip->track()->sequence()->playhead);
-}
-
-long Node::NowInFrames()
-{
-  return playhead_to_clip_frame(parent_clip, parent_clip->track()->sequence()->playhead);
-}
-
-int GetNodeLibraryIndexFromId(const QString& id) {
-  for (int i=0;i<olive::node_library.size();i++) {
-    if (olive::node_library.at(i)->id() == id) {
-      return i;
-    }
-  }
-
-  return -1;
 }

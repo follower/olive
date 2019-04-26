@@ -100,8 +100,6 @@ public:
 
   TimelineHeader* headers;
 
-
-
   void initiate_drag(olive::timeline::MediaImportType drag_type);
 
   virtual void Retranslate() override;

@@ -39,7 +39,7 @@ NodeShader::NodeShader(Clip* c,
           if (id.isEmpty() || name.isEmpty() || type == olive::nodes::kInvalid) {
             qCritical() << "Couldn't load field from" << filename_ << "- ID, type, and name cannot be empty.";
           } else {
-            EffectRow* field = nullptr;
+            NodeIO* field = nullptr;
 
             switch (type) {
             case olive::nodes::kFloat:
@@ -200,12 +200,12 @@ QString NodeShader::description()
   return description_;
 }
 
-EffectType NodeShader::type()
+EffectType NodeShader::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }
 
-olive::TrackType NodeShader::subtype()
+olive::TrackType NodeShader::type()
 {
   return olive::kTypeVideo;
 }
@@ -215,7 +215,7 @@ bool NodeShader::IsCreatable()
   return !filename_.isEmpty();
 }
 
-NodePtr NodeShader::Create(Clip *)
+NodePtr NodeShader::Create(Node *)
 {
   Q_ASSERT(false);
   return nullptr;

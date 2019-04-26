@@ -94,12 +94,12 @@ QString TimecodeEffect::description()
   return tr("Render the media or sequence timecode on this clip.");
 }
 
-EffectType TimecodeEffect::type()
+EffectType TimecodeEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }
 
-olive::TrackType TimecodeEffect::subtype()
+olive::TrackType TimecodeEffect::type()
 {
   return olive::kTypeVideo;
 }

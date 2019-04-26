@@ -44,6 +44,7 @@
 #include "rendering/qopenglshaderprogramptr.h"
 #include "inputs.h"
 #include "effects/effectgizmo.h"
+#include "nodegraph.h"
 
 class EffectGizmo;
 class KeyframeDataChange;
@@ -54,7 +55,7 @@ using ClipPtr = std::shared_ptr<Clip>;
 class Node;
 using NodePtr = std::shared_ptr<Node>;
 
-enum NodeType {
+enum SubClipNodeType {
   kTransformEffect,
   kTextInput,
   kSolidInput,
@@ -112,33 +113,23 @@ struct GLTextureCoords {
 class Node : public QObject {
   Q_OBJECT
 public:
-  Node(Clip *c);
+  Node(Node *parent);
   virtual ~Node();
 
-  Clip* parent_clip;
-
   virtual QString name() = 0;
-  virtual QString id() = 0;
-  virtual QString category();
-  virtual QString description() = 0;
-  virtual EffectType type() = 0;
-  virtual olive::TrackType subtype() = 0;
-  virtual bool IsCreatable();
-  virtual NodePtr Create(Clip *c) = 0;
+  virtual olive::TrackType type();
 
   virtual void Open() = 0;
   virtual void Close() = 0;
   virtual bool IsOpen() = 0;
   virtual void Process(double time) = 0;
 
-  void AddRow(EffectRow* row);
-  int IndexOfRow(EffectRow* row);
-  EffectRow* row(int i);
+  void AddRow(NodeIO* row);
+  int IndexOfRow(NodeIO* row);
+  NodeIO* row(int i);
   int RowCount();
 
-  EffectGizmo* add_gizmo(int type);
-  EffectGizmo* gizmo(int i);
-  int gizmo_count();
+  NodeGraph* pipeline();
 
   QVector<NodeEdgePtr> GetAllEdges();
 
@@ -147,7 +138,7 @@ public:
 
   virtual void refresh();
 
-  virtual NodePtr copy(Clip* c);
+  virtual NodePtr copy(Node* c);
   void copy_field_keyframes(NodePtr e);
 
   virtual void load(QXmlStreamReader& stream);
@@ -158,35 +149,6 @@ public:
   QByteArray save_to_string();
 
   const QPointF& pos();
-
-  virtual void gizmo_draw(double timecode, GLTextureCoords& coords);
-  void gizmo_move(EffectGizmo* sender, int x_movement, int y_movement, double timecode, bool done);
-  void gizmo_world_to_screen(const QMatrix4x4 &matrix, const QMatrix4x4 &projection);
-  bool are_gizmos_enabled();
-
-  /**
-   * @brief Get the current clip/media time
-   *
-   * A convenience function that can be plugged into GetValueAt() to get the value wherever the appropriate Sequence's
-   * playhead it.
-   *
-   * @return
-   *
-   * Current clip/media time in seconds.
-   */
-  double Now();
-
-  /**
-   * @brief Retrieve the current clip as a frame number
-   *
-   * Same as Now() but retrieves the value as a frame number (in the appropriate Sequence's frame rate) instead of
-   * seconds.
-   *
-   * @return
-   *
-   * The current clip time in frames
-   */
-  long NowInFrames();
 
   template <typename T>
   T randomNumber()
@@ -221,7 +183,7 @@ protected:
   QOpenGLContext* ctx();
 
 private:
-  QVector<EffectRow*> rows;
+  QVector<NodeIO*> rows;
   QVector<EffectGizmo*> gizmos;
 
   bool enabled_;
@@ -230,10 +192,59 @@ private:
   QVector<KeyframeDataChange*> gizmo_dragging_actions_;
 
   QPointF pos_;
+
+  NodeGraph pipeline_;
 };
 
+class SubClipNode : public Node {
+public:
+  SubClipNode(Clip* c);
+
+  Clip* GetClipParent();
+
+  virtual EffectType subclip_type() = 0;
+  virtual QString id() = 0;
+  virtual QString category();
+  virtual QString description() = 0;
+  virtual bool IsCreatable();
+  virtual NodePtr Create(Node *c) = 0;
+
+  EffectGizmo* add_gizmo(int subclip_type);
+  EffectGizmo* gizmo(int i);
+  int gizmo_count();
+  virtual void gizmo_draw(double timecode, GLTextureCoords& coords);
+  void gizmo_move(EffectGizmo* sender, int x_movement, int y_movement, double timecode, bool done);
+  void gizmo_world_to_screen(const QMatrix4x4 &matrix, const QMatrix4x4 &projection);
+  bool are_gizmos_enabled();
+
+  /**
+   * @brief Get the current clip/media time
+   *
+   * A convenience function that can be plugged into GetValueAt() to get the value wherever the appropriate Sequence's
+   * playhead it.
+   *
+   * @return
+   *
+   * Current clip/media time in seconds.
+   */
+  double Now();
+
+  /**
+   * @brief Retrieve the current clip as a frame number
+   *
+   * Same as Now() but retrieves the value as a frame number (in the appropriate Sequence's frame rate) instead of
+   * seconds.
+   *
+   * @return
+   *
+   * The current clip time in frames
+   */
+  long NowInFrames();
+};
+using SubClipNodePtr = std::shared_ptr<SubClipNode>;
+
 namespace olive {
-  extern QVector<NodePtr> node_library;
+  extern QVector<SubClipNodePtr> node_library;
 }
 
 #endif // EFFECT_H

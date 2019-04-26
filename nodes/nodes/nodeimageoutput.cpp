@@ -3,7 +3,7 @@
 NodeImageOutput::NodeImageOutput(Clip *c) :
   Node(c)
 {
-  input_texture_ = new EffectRow(this, "texture", tr("Texture"), true, false);
+  input_texture_ = new NodeIO(this, "texture", tr("Texture"), true, false);
   input_texture_->AddAcceptedNodeInput(olive::nodes::kTexture);
   input_texture_->SetValueAt(0, 0);
 }
@@ -33,12 +33,12 @@ QString NodeImageOutput::description()
   return tr("Used for outputting images outside of the node graph.");
 }
 
-EffectType NodeImageOutput::type()
+EffectType NodeImageOutput::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }
 
-olive::TrackType NodeImageOutput::subtype()
+olive::TrackType NodeImageOutput::type()
 {
   return olive::kTypeVideo;
 }
@@ -48,7 +48,7 @@ NodePtr NodeImageOutput::Create(Clip *c)
   return std::make_shared<NodeImageOutput>(c);
 }
 
-EffectRow *NodeImageOutput::texture_input()
+NodeIO *NodeImageOutput::texture_input()
 {
   return input_texture_;
 }

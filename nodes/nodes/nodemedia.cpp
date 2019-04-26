@@ -8,11 +8,11 @@ NodeMedia::NodeMedia(Clip* c) :
   footage_stream_(nullptr),
   texture_is_allocated_(false)
 {
-  matrix_input_ = new EffectRow(this, "matrix", tr("Matrix"), true, false);
+  matrix_input_ = new NodeIO(this, "matrix", tr("Matrix"), true, false);
   matrix_input_->AddAcceptedNodeInput(olive::nodes::kMatrix);
   matrix_input_->SetValueAt(0, QMatrix4x4());
 
-  texture_output_ = new EffectRow(this, "texture", tr("Texture"), true, false);
+  texture_output_ = new NodeIO(this, "texture", tr("Texture"), true, false);
   texture_output_->SetOutputDataType(olive::nodes::kTexture);
   texture_output_->SetValueAt(0, 0);
 }
@@ -266,12 +266,12 @@ QString NodeMedia::description()
   return tr("Retrieve frames from a media source.");
 }
 
-EffectType NodeMedia::type()
+EffectType NodeMedia::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }
 
-olive::TrackType NodeMedia::subtype()
+olive::TrackType NodeMedia::type()
 {
   return olive::kTypeVideo;
 }
@@ -281,12 +281,12 @@ NodePtr NodeMedia::Create(Clip *c)
   return std::make_shared<NodeMedia>(c);
 }
 
-EffectRow *NodeMedia::matrix_input()
+NodeIO *NodeMedia::matrix_input()
 {
   return matrix_input_;
 }
 
-EffectRow *NodeMedia::texture_output()
+NodeIO *NodeMedia::texture_output()
 {
   return texture_output_;
 }

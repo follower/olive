@@ -18,88 +18,88 @@
 
 ***/
 
-#include "clipqueue.h"
+#include "framecache.h"
 
 
-ClipQueue::ClipQueue()
+FrameCache::FrameCache()
 {
 
 }
 
-ClipQueue::~ClipQueue()
+FrameCache::~FrameCache()
 {
   clear();
 }
 
-void ClipQueue::lock()
+void FrameCache::lock()
 {
   queue_lock.lock();
 }
 
-bool ClipQueue::tryLock()
+bool FrameCache::tryLock()
 {
   return queue_lock.tryLock();
 }
 
-void ClipQueue::unlock()
+void FrameCache::unlock()
 {
   queue_lock.unlock();
 }
 
-void ClipQueue::append(AVFrame *frame)
+void FrameCache::append(AVFrame *frame)
 {
   queue.append(frame);
 }
 
-AVFrame *ClipQueue::at(int i)
+AVFrame *FrameCache::at(int i)
 {
   return queue.at(i);
 }
 
-AVFrame *ClipQueue::first()
+AVFrame *FrameCache::first()
 {
   return queue.first();
 }
 
-AVFrame *ClipQueue::last()
+AVFrame *FrameCache::last()
 {
   return queue.last();
 }
 
-void ClipQueue::removeFirst()
+void FrameCache::removeFirst()
 {
   removeAt(0);
 }
 
-void ClipQueue::removeLast()
+void FrameCache::removeLast()
 {
   removeAt(queue.size()-1);
 }
 
-void ClipQueue::removeAt(int i)
+void FrameCache::removeAt(int i)
 {
   av_frame_free(&queue[i]);
   queue.removeAt(i);
 }
 
-void ClipQueue::clear()
+void FrameCache::clear()
 {
   while (queue.size() > 0) {
     removeAt(0);
   }
 }
 
-int ClipQueue::size()
+int FrameCache::size()
 {
   return queue.size();
 }
 
-bool ClipQueue::isEmpty()
+bool FrameCache::isEmpty()
 {
   return queue.isEmpty();
 }
 
-bool ClipQueue::contains(AVFrame *frame)
+bool FrameCache::contains(AVFrame *frame)
 {
   return queue.contains(frame);
 }

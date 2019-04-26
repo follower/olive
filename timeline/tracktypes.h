@@ -6,7 +6,7 @@ namespace olive {
     kTypeVideo,
     kTypeAudio,
     kTypeSubtitle,
-    kTypeCount
+    kTypeInvalid
   };
 };
 

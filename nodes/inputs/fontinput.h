@@ -1,9 +1,9 @@
 #ifndef FONTINPUT_H
 #define FONTINPUT_H
 
-#include "effects/effectrow.h"
+#include "effects/nodeio.h"
 
-class FontInput : public EffectRow
+class FontInput : public NodeIO
 {
   Q_OBJECT
 public:

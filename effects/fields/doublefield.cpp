@@ -23,7 +23,7 @@
 #include "nodes/node.h"
 #include "undo/undo.h"
 
-DoubleField::DoubleField(EffectRow* parent) :
+DoubleField::DoubleField(NodeIO* parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_DOUBLE),
   min_(qSNaN()),
   max_(qSNaN()),

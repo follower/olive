@@ -54,7 +54,6 @@ extern "C" {
 #include "undo/undo.h"
 #include "project/media.h"
 #include "ui/viewercontainer.h"
-#include "rendering/cacher.h"
 #include "ui/timelineview.h"
 #include "rendering/renderfunctions.h"
 #include "rendering/renderthread.h"
@@ -84,14 +83,10 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   setContextMenuPolicy(Qt::CustomContextMenu);
   connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_context_menu()));
 
-  renderer.start(QThread::HighestPriority);
-  connect(&renderer, SIGNAL(ready()), this, SLOT(queue_repaint()));
-
   window = new ViewerWindow(this);
 }
 
 ViewerWidget::~ViewerWidget() {
-  renderer.cancel();
 }
 
 void ViewerWidget::set_waveform_scroll(int s) {
@@ -168,13 +163,7 @@ void ViewerWidget::save_frame() {
     if (!fn.endsWith(selected_ext,  Qt::CaseInsensitive)) {
       fn += selected_ext;
     }
-
-    renderer.start_render(context(), viewer->seq.get(), 1, fn);
   }
-}
-
-void ViewerWidget::queue_repaint() {
-  update();
 }
 
 void ViewerWidget::fullscreen_menu_action(QAction *action) {
@@ -240,16 +229,14 @@ void ViewerWidget::frame_update() {
       update();
     } else {
       doneCurrent();
-      renderer.start_render(context(), viewer->seq.get(), viewer->get_playback_speed());
+
+      //renderer.start_render(context(), viewer->seq.get(), viewer->get_playback_speed());
+      viewer->seq->Render(viewer->seq->playhead);
     }
 
     // render the audio
     olive::rendering::compose_audio(viewer, viewer->seq.get(), viewer->get_playback_speed(), false);
   }
-}
-
-RenderThread *ViewerWidget::get_renderer() {
-  return &renderer;
 }
 
 void ViewerWidget::set_scroll(double x, double y) {
@@ -280,8 +267,6 @@ QMatrix4x4 ViewerWidget::get_matrix()
 
 void ViewerWidget::context_destroy() {
   makeCurrent();
-
-  renderer.delete_ctx();
 
   title_safe_area_buffer_.destroy();
 
@@ -343,8 +328,8 @@ void ViewerWidget::move_gizmos(QMouseEvent *event, bool done) {
     gizmos->gizmo_move(selected_gizmo,
                        x_movement,
                        y_movement,
-                       get_timecode(gizmos->parent_clip,
-                                    gizmos->parent_clip->track()->sequence()->playhead),
+                       get_timecode(gizmos->GetClipParent(),
+                                    gizmos->GetClipParent()->track()->sequence()->playhead),
                        done);
 
     gizmo_x_mvmt += x_movement;
@@ -416,11 +401,6 @@ void ViewerWidget::wheelEvent(QWheelEvent *event) {
 
 void ViewerWidget::close_window() {
   window->hide();
-}
-
-void ViewerWidget::wait_until_render_is_paused()
-{
-  renderer.wait_until_paused();
 }
 
 void ViewerWidget::draw_waveform_func() {
@@ -723,6 +703,21 @@ void ViewerWidget::draw_gizmos() {
 }
 
 void ViewerWidget::paintGL() {
+  QOpenGLFunctions* f = context()->functions();
+
+  // clear to nothing
+  f->glClearColor(0.0, 0.0, 0.0, 0.0);
+  f->glClear(GL_COLOR_BUFFER_BIT);
+
+  f->glViewport(0, 0, width(), height());
+
+  f->glBindTexture(GL_TEXTURE_2D, tex);
+
+  olive::rendering::Blit(pipeline_.get(), true, get_matrix());
+
+  f->glBindTexture(GL_TEXTURE_2D, 0);
+
+  /*
   if (waveform) {
     draw_waveform_func();
   } else {
@@ -772,4 +767,5 @@ void ViewerWidget::paintGL() {
       renderer.start_render(context(), viewer->seq.get(), viewer->get_playback_speed());
     }
   }
+  */
 }

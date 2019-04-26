@@ -394,10 +394,10 @@ void EffectControls::LoadEvent()
     EffectUI* container = open_effects_.at(i);
     Node* e = open_effects_.at(i)->GetEffect();
 
-    if (e->subtype() == olive::kTypeVideo) {
+    if (e->type() == olive::kTypeVideo) {
       vcontainer->setVisible(true);
       layout = video_effect_layout;
-    } else if (e->subtype() == olive::kTypeAudio) {
+    } else if (e->type() == olive::kTypeAudio) {
       acontainer->setVisible(true);
       layout = audio_effect_layout;
     }

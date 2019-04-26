@@ -65,7 +65,6 @@ public:
   int waveform_scroll;
 
   void frame_update();
-  RenderThread* get_renderer();
   void set_scroll(double x, double y);
 public slots:
   void set_waveform_scroll(int s);
@@ -84,13 +83,12 @@ private:
   bool dragging;
   void seek_from_click(int x);
   QMatrix4x4 get_matrix();
-  Node* gizmos;
+  SubClipNode* gizmos;
   int drag_start_x;
   int drag_start_y;
   int gizmo_x_mvmt;
   int gizmo_y_mvmt;
   EffectGizmo* selected_gizmo;
-  RenderThread renderer;
   ViewerWindow* window;
   double x_scroll;
   double y_scroll;

@@ -37,8 +37,8 @@ public:
   virtual QString name() override;
   virtual QString id() override;
   virtual QString description() override;
-  virtual EffectType type() override;
-  virtual olive::TrackType subtype() override;
+  virtual EffectType subclip_type() override;
+  virtual olive::TrackType type() override;
   virtual bool IsCreatable() override;
   virtual NodePtr Create(Clip *c) override;
   virtual NodePtr copy(Clip* c) override;

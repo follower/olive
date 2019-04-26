@@ -121,7 +121,7 @@ void EffectsPanel::Load() {
       // to clear the graph editor later.
       if (!graph_editor_row_is_still_active) {
         for (int k=0;k<effects_to_open.at(j)->RowCount();k++) {
-          EffectRow* row = effects_to_open.at(j)->row(k);
+          NodeIO* row = effects_to_open.at(j)->row(k);
           if (row == panel_graph_editor->get_row()) {
             graph_editor_row_is_still_active = true;
             break;
@@ -178,7 +178,7 @@ void EffectsPanel::copy(bool del) {
     if (open_effects_.at(i)->IsSelected()) {
       Node* e = open_effects_.at(i)->GetEffect();
 
-      if (e->type() == EFFECT_TYPE_EFFECT) {
+      if (e->subclip_type() == EFFECT_TYPE_EFFECT) {
 
         if (!cleared) {
           olive::clipboard.Clear();
@@ -212,11 +212,11 @@ void EffectsPanel::AboutToClearEvent()
 }
 
 void EffectsPanel::DeleteEffect(ComboAction* ca, Node* effect_ref) {
-  if (effect_ref->type() == EFFECT_TYPE_EFFECT) {
+  if (effect_ref->subclip_type() == EFFECT_TYPE_EFFECT) {
 
     ca->append(new EffectDeleteCommand(effect_ref));
 
-  } else if (effect_ref->type() == EFFECT_TYPE_TRANSITION) {
+  } else if (effect_ref->subclip_type() == EFFECT_TYPE_TRANSITION) {
 
     // Retrieve shared ptr for this transition
 

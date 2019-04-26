@@ -37,19 +37,19 @@ namespace olive {
 
 class TrackList;
 
-class Track : public QObject
+class Track : public Node
 {
   Q_OBJECT
 public:
-  Track(TrackList* parent, olive::TrackType type);
-  Track* copy(TrackList* parent);
+  Track(Node* parent, olive::TrackType subclip_type);
+  NodePtr copy(Node* parent);
 
   Sequence* sequence();
   TrackList* track_list();
 
   void Save(QXmlStreamWriter& stream);
 
-  olive::TrackType type();
+  olive::TrackType track_type();
 
   int height();
   void set_height(int h);

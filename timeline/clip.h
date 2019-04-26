@@ -28,8 +28,6 @@
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLTexture>
 
-#include "rendering/cacher.h"
-
 #include "nodes/node.h"
 #include "effects/transition.h"
 #include "undo/comboaction.h"
@@ -37,7 +35,6 @@
 #include "project/footage.h"
 #include "rendering/framebufferobject.h"
 #include "marker.h"
-#include "nodes/nodegraph.h"
 #include "selection.h"
 
 class Track;
@@ -48,21 +45,21 @@ struct ClipSpeed {
   bool maintain_audio_pitch;
 };
 
-class Clip {
+class Clip : public Node {
 public:
   Clip(Track *s);
-  ~Clip();
-  ClipPtr copy(Track *s);
+  virtual ~Clip() override;
+  NodePtr copy(Node *s) override;
 
   void Save(QXmlStreamWriter& stream);
 
   bool IsActiveAt(long timecode);
   bool IsSelected(bool containing = true);
-  bool IsTransitionSelected(TransitionType type);
+  bool IsTransitionSelected(TransitionType subclip_type);
 
   Selection ToSelection();
 
-  olive::TrackType type();
+  virtual olive::TrackType type() override;
 
   const QColor& color();
   void set_color(int r, int g, int b);
@@ -85,9 +82,6 @@ public:
             bool verify_transitions = true,
             bool relative = false);
 
-  bool enabled();
-  void set_enabled(bool e);
-
   long clip_in(bool with_transition = false);
   void set_clip_in(long c);
 
@@ -109,7 +103,7 @@ public:
   double cached_frame_rate();
   void set_cached_frame_rate(double d);
 
-  const QString& name();
+  virtual QString name() override;
   void set_name(const QString& s);
 
   const ClipSpeed& speed();
@@ -118,7 +112,7 @@ public:
   AVRational time_base();
 
   void reset_audio();
-  void refresh();
+  virtual void refresh() override;
 
   long length();
 
@@ -133,16 +127,11 @@ public:
   TransitionPtr opening_transition;
   TransitionPtr closing_transition;
 
-  NodeGraph* pipeline();
-
   // playback functions
-  void Open();
-  void Cache(long playhead, bool scrubbing, QVector<Clip*> &nests, int playback_speed);
-  bool Retrieve();
-  void Close(bool wait);
-  bool IsOpen();
-
-  bool UsesCacher();
+  virtual void Open() override;
+  virtual void Close() override;
+  virtual bool IsOpen() override;
+  virtual void Process(double time) override;
 
   // temporary variables
   int load_id;
@@ -155,8 +144,6 @@ public:
 
 private:
   // timeline variables (should be copied in copy())
-  Track* track_;
-  bool enabled_;
   long clip_in_;
   long timeline_in_;
   long timeline_out_;
@@ -167,8 +154,6 @@ private:
   double cached_fr_;
   bool reverse_;
   bool autoscale_;
-
-  NodeGraph pipeline_;
 
   QVector<Marker> markers;
   QColor color_;

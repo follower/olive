@@ -66,7 +66,7 @@ TransformEffect::TransformEffect(Clip* c) : Node(c) {
   opacity->SetDefault(100);
 
   // TEMP - Create matrix output
-  matrix_output_ = new EffectRow(this, "matrix", "Matrix", false, false);
+  matrix_output_ = new NodeIO(this, "matrix", "Matrix", false, false);
   matrix_output_->SetOutputDataType(olive::nodes::kMatrix);
 
   // set up gizmos
@@ -143,17 +143,17 @@ QString TransformEffect::description()
   return tr("Transform the position, scale, and rotation of this clip.");
 }
 
-EffectType TransformEffect::type()
+EffectType TransformEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }
 
-olive::TrackType TransformEffect::subtype()
+olive::TrackType TransformEffect::type()
 {
   return olive::kTypeVideo;
 }
 
-NodePtr TransformEffect::Create(Clip *c)
+NodePtr TransformEffect::Create(Node *c)
 {
   return std::make_shared<TransformEffect>(c);
 }
@@ -257,7 +257,7 @@ void TransformEffect::gizmo_draw(double, GLTextureCoords& coords) {
   rect_gizmo->world_pos[3] = coords.vertex_bottom_left;
 }
 
-EffectRow *TransformEffect::matrix_output()
+NodeIO *TransformEffect::matrix_output()
 {
   return matrix_output_;
 }

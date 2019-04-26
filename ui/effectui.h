@@ -212,7 +212,7 @@ private:
    *
    * The KeyframeNavigator object.
    */
-  void AttachKeyframeNavigationToRow(EffectRow* row, KeyframeNavigator* nav);
+  void AttachKeyframeNavigationToRow(NodeIO* row, KeyframeNavigator* nav);
 private slots:
   /**
    * @brief Slot for titlebar's right-click signal to show a context menu for extra Effect functions.

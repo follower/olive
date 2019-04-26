@@ -48,12 +48,12 @@ QString AudioNoiseEffect::description()
   return tr("Generate audio noise that can be mixed with this clip.");
 }
 
-EffectType AudioNoiseEffect::type()
+EffectType AudioNoiseEffect::subclip_type()
 {
   return EFFECT_TYPE_EFFECT;
 }
 
-olive::TrackType AudioNoiseEffect::subtype()
+olive::TrackType AudioNoiseEffect::type()
 {
   return olive::kTypeAudio;
 }
