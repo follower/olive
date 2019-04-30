@@ -26,7 +26,7 @@
 class TransformEffect : public EffectNode {
   Q_OBJECT
 public:
-  TransformEffect(Clip* c);
+  TransformEffect(Node* c);
 
   virtual QString name() override;
   virtual QString id() override;

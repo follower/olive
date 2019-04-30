@@ -112,6 +112,8 @@ struct GLTextureCoords {
 class Node;
 using NodePtr = std::shared_ptr<Node>;
 
+class Sequence;
+
 class Node : public QObject {
   Q_OBJECT
 public:
@@ -124,12 +126,12 @@ public:
   virtual NodeSubType subclip_type();
   virtual olive::TrackType type();
   virtual QString category();
-  virtual QString description() = 0;
+  virtual QString description();
 
-  virtual void Open() = 0;
-  virtual void Close() = 0;
-  virtual bool IsOpen() = 0;
-  virtual void Process(double time) = 0;
+  virtual void Open();
+  virtual void Close();
+  virtual bool IsOpen();
+  virtual void Process(double time);
 
   bool IsStatic();
   void SetStatic(bool s);
@@ -186,6 +188,7 @@ public slots:
   void SetPos(const QPointF& pos);
 signals:
   void EnabledChanged(bool);
+  void ChildCountChanged();
 private slots:
   void delete_self();
   void save_to_file();
@@ -196,13 +199,13 @@ protected:
   QVector<NodePtr> children_;
 
 private:
+  virtual Sequence* GetSequence();
+
   QVector<NodeParameter*> rows;
 
   bool enabled_;
   bool expanded_;
   bool static_;
-
-  QVector<KeyframeDataChange*> gizmo_dragging_actions_;
 
   QPointF pos_;
 };
@@ -245,6 +248,7 @@ public:
 
 private:
   QVector<EffectGizmo*> gizmos;
+  QVector<KeyframeDataChange*> gizmo_dragging_actions_;
 };
 
 namespace olive {

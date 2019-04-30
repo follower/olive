@@ -13,7 +13,8 @@ class TimelineArea : public QWidget
 public:
   TimelineArea(Timeline *timeline, olive::timeline::Alignment alignment = olive::timeline::kAlignmentTop);
 
-  void SetTrackList(Sequence* sequence, olive::TrackType track_list);
+  const olive::TrackType& TrackType();
+  void SetTrackType(Sequence* sequence, olive::TrackType track_type);
   void SetAlignment(olive::timeline::Alignment alignment);
 
   TimelineView* view();
@@ -26,6 +27,8 @@ protected:
 private:
   Timeline* timeline_;
   TimelineView* view_;
+  Sequence* seq_;
+  olive::TrackType type_;
   QVector<TimelineLabelPtr> labels_;
   olive::timeline::Alignment alignment_;
   QVBoxLayout* label_container_layout_;

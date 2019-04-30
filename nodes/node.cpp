@@ -104,6 +104,8 @@ void Node::AddChild(NodePtr child)
 {
   child->parent_ = this;
   children_.append(child);
+
+  emit ChildCountChanged();
 }
 
 Node* Node::AddChild(NodeType type)
@@ -251,6 +253,15 @@ void Node::load_from_file() {
 QOpenGLContext *Node::ctx()
 {
   return QOpenGLContext::currentContext();
+}
+
+Sequence *Node::GetSequence()
+{
+  if (parent_ == nullptr) {
+    return nullptr;
+  }
+
+  return parent_->GetSequence();
 }
 
 bool Node::IsEnabled() {
@@ -496,17 +507,43 @@ EffectNode::EffectNode(Node *c) :
 
 double EffectNode::Now()
 {
-  return playhead_to_clip_seconds(GetClipparent_, GetClipparent_->track()->sequence()->playhead);
+  // TODO fix this
+  //return playhead_to_clip_seconds(GetClipparent_, GetClipparent_->track()->sequence()->playhead);
+  return 0;
 }
 
 long EffectNode::NowInFrames()
 {
-  return playhead_to_clip_frame(GetClipparent_, GetClipparent_->track()->sequence()->playhead);
+  // TODO fix this
+  //return playhead_to_clip_frame(GetClipparent_, GetClipparent_->track()->sequence()->playhead);
+  return 0;
 }
 
 QString Node::category()
 {
   return QString();
+}
+
+QString Node::description()
+{
+  return QString();
+}
+
+void Node::Open()
+{
+}
+
+void Node::Close()
+{
+}
+
+bool Node::IsOpen()
+{
+  return true;
+}
+
+void Node::Process(double)
+{
 }
 
 void EffectNode::gizmo_draw(double, GLTextureCoords &) {}
@@ -581,6 +618,8 @@ void EffectNode::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, 
 }
 
 void EffectNode::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatrix4x4& projection) {
+  // TODO fix this
+  /*
   for (int i=0;i<gizmos.size();i++) {
     EffectGizmo* g = gizmos.at(i);
 
@@ -599,6 +638,7 @@ void EffectNode::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatrix4x
 
     }
   }
+  */
 }
 
 bool EffectNode::are_gizmos_enabled() {

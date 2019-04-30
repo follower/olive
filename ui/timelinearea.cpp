@@ -9,7 +9,8 @@ int olive::timeline::kTimelineLabelFixedWidth = 200;
 
 TimelineArea::TimelineArea(Timeline* timeline, olive::timeline::Alignment alignment) :
   timeline_(timeline),
-  track_list_(nullptr),
+  seq_(nullptr),
+  type_(olive::kTypeInvalid),
   alignment_(alignment)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
@@ -49,27 +50,27 @@ TimelineArea::TimelineArea(Timeline* timeline, olive::timeline::Alignment alignm
   connect(view_, SIGNAL(requestScrollChange(int)), scrollbar_, SLOT(setValue(int)));
 }
 
-void TimelineArea::SetTrackList(Sequence *sequence, olive::TrackType track_list)
+const olive::TrackType &TimelineArea::TrackType()
 {
-  if (track_list_ != nullptr) {
-    disconnect(track_list_, SIGNAL(TrackCountChanged()), this, SLOT(RefreshLabels()));
+  return type_;
+}
+
+void TimelineArea::SetTrackType(Sequence *sequence, olive::TrackType track_list)
+{
+  if (seq_ != nullptr) {
+    disconnect(seq_, SIGNAL(ChildCountChanged()), this, SLOT(RefreshLabels()));
   }
 
-  if (sequence == nullptr) {
+  seq_ = sequence;
+  type_ = track_list;
 
-    track_list_ = nullptr;
-
-  } else {
-
-    track_list_ = sequence->GetTrackList(track_list);
-    connect(track_list_, SIGNAL(TrackCountChanged()), this, SLOT(RefreshLabels()));
-
+  if (seq_ != nullptr) {
+    connect(seq_, SIGNAL(ChildCountChanged()), this, SLOT(RefreshLabels()));
   }
 
   RefreshLabels();
 
-  view_->SetTrackList(track_list_);
-
+  view_->SetTrackType(seq_, track_list);
 }
 
 void TimelineArea::SetAlignment(olive::timeline::Alignment alignment)

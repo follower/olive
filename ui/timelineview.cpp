@@ -69,7 +69,7 @@
 TimelineView::TimelineView(Timeline *parent) :
   timeline_(parent),
   self_created_sequence(nullptr),
-  track_list_(nullptr),
+  seq_(nullptr),
   scroll(0),
   alignment_(olive::timeline::kAlignmentTop),
   track_resizing(false)
@@ -92,9 +92,10 @@ void TimelineView::SetAlignment(olive::timeline::Alignment alignment)
   alignment_ = alignment;
 }
 
-void TimelineView::SetTrackList(TrackList *tl)
+void TimelineView::SetTrackType(Sequence *sequence, olive::TrackType type)
 {
-  track_list_ = tl;
+  seq_ = sequence;
+  type_ = type;
 
   update();
 }

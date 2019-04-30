@@ -43,7 +43,7 @@
 #include "panels/viewer.h"
 #include "ui/viewerwidget.h"
 
-TransformEffect::TransformEffect(Clip* c) : Node(c) {
+TransformEffect::TransformEffect(Node *c) : Node(c) {
   position = new Vec2Input(this, "pos", tr("Position"));
 
   scale = new Vec2Input(this, "scale", tr("Scale"));

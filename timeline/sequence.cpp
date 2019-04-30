@@ -47,6 +47,16 @@ Sequence::Sequence() :
   NodeParameter::ConnectEdge(initial_video_track->texture_output(), texture_input_);
 }
 
+NodePtr Sequence::Create(Node *)
+{
+  return std::make_shared<Sequence>();
+}
+
+NodePtr Sequence::copy(Node *)
+{
+  return copy();
+}
+
 SequencePtr Sequence::copy() {
   SequencePtr s = std::make_shared<Sequence>();
   s->SetName(QCoreApplication::translate("Sequence", "%1 (copy)").arg(name()));
@@ -109,6 +119,11 @@ void Sequence::Save(QXmlStreamWriter &stream)
   stream.writeEndElement();
 }
 
+QString Sequence::id()
+{
+  return "org.olivevideoeditor.Olive.sequence";
+}
+
 QString Sequence::name()
 {
   return name_;
@@ -146,6 +161,23 @@ QVector<Clip *> Sequence::GetAllClips()
   }
 
   return all_clips;
+}
+
+QVector<Track *> Sequence::GetTracksOfType(olive::TrackType type)
+{
+  // TODO sort this by order
+
+  QVector<Track*> tracks;
+
+  for (int i=0;i<children_.size();i++) {
+    Track* t = dynamic_cast<Track*>(children_.at(i).get());
+
+    if (t != nullptr && t->type() == type) {
+      tracks.append(t);
+    }
+  }
+
+  return tracks;
 }
 
 void Sequence::Close()
@@ -1104,6 +1136,11 @@ void Sequence::TidySelections()
   QVector<Selection> selections = Selections();
   Selection::Tidy(selections);
   SetSelections(selections);
+}
+
+Sequence *Sequence::GetSequence()
+{
+  return this;
 }
 
 ClipPtr Sequence::SplitClip(ComboAction *ca, bool transitions, Clip* pre, long frame)

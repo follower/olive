@@ -216,6 +216,16 @@ Clip::~Clip() {
 
 }
 
+QString Clip::id()
+{
+  return "org.olivevideoeditor.Olive.clip";
+}
+
+NodePtr Clip::Create(Node *c)
+{
+  return std::make_shared<Clip>(c);
+}
+
 void Clip::Save(QXmlStreamWriter &stream)
 {
   stream.writeStartElement("clip");
@@ -277,7 +287,7 @@ void Clip::Save(QXmlStreamWriter &stream)
       if (this == transition->secondary_clip) {
         // if so, just save a reference to the other clip
         stream.writeAttribute("shared",
-                              QString::number(transition->parent_clip->load_id));
+                              QString::number(reinterpret_cast<quintptr>(transition->parent_clip())));
       } else {
         // otherwise save the whole transition
         transition->save(stream);
@@ -426,7 +436,7 @@ long Clip::media_length() {
       case MEDIA_TYPE_FOOTAGE:
       {
         Footage* m = media_->to_footage();
-        const FootageStream* ms = m->get_stream_from_file_index(subclip_type() == olive::kTypeVideo, media_stream_index());
+        const FootageStream* ms = m->get_stream_from_file_index(type() == olive::kTypeVideo, media_stream_index());
         if (ms != nullptr && ms->infinite_length) {
           return LONG_MAX;
         } else {

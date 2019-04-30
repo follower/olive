@@ -44,6 +44,7 @@ public:
   explicit TimelineView(Timeline *parent);
 
   void SetAlignment(olive::timeline::Alignment alignment);
+  void SetTrackType(Sequence* sequence, olive::TrackType type);
 
   Track* getTrackFromScreenPoint(int y);
   int getScreenPointFromTrack(Track* track);
@@ -88,6 +89,9 @@ private:
   int GetTotalAreaHeight();
 
   Timeline* timeline_;
+
+  Sequence* seq_;
+  olive::TrackType type_;
 
   olive::timeline::Alignment alignment_;
 

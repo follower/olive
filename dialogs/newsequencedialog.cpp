@@ -59,7 +59,7 @@ NewSequenceDialog::NewSequenceDialog(QWidget *parent, Media *existing, Sequence*
   }
 
   if (existing_sequence != nullptr) {
-    setWindowTitle(tr("Editing \"%1\"").arg(existing_sequence->name));
+    setWindowTitle(tr("Editing \"%1\"").arg(existing_sequence->name()));
 
     width_numeric->setValue(existing_sequence->width);
     height_numeric->setValue(existing_sequence->height);
@@ -70,7 +70,7 @@ NewSequenceDialog::NewSequenceDialog(QWidget *parent, Media *existing, Sequence*
         break;
       }
     }
-    sequence_name_edit->setText(existing_sequence->name);
+    sequence_name_edit->setText(existing_sequence->name());
     for (int i=0;i<audio_frequency_combobox->count();i++) {
       if (audio_frequency_combobox->itemData(i) == existing_sequence->audio_frequency) {
         audio_frequency_combobox->setCurrentIndex(i);
@@ -100,7 +100,7 @@ void NewSequenceDialog::accept() {
 
     SequencePtr s = std::make_shared<Sequence>();
 
-    s->name = sequence_name_edit->text();
+    s->SetName(sequence_name_edit->text());
     s->width = width_numeric->value();
     s->height = height_numeric->value();
     s->frame_rate = frame_rate_combobox->currentData().toDouble();
@@ -139,7 +139,7 @@ void NewSequenceDialog::accept() {
 
     // This dialog was given an existing Sequence without a Media wrapper - therefore just directly apply the settings
 
-    existing_sequence->name = sequence_name_edit->text();
+    existing_sequence->SetName(sequence_name_edit->text());
     existing_sequence->width = width_numeric->value();
     existing_sequence->height = height_numeric->value();
     existing_sequence->frame_rate = frame_rate_combobox->currentData().toDouble();

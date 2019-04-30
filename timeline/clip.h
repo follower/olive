@@ -53,6 +53,9 @@ public:
   Clip(Track *s);
   virtual ~Clip() override;
 
+  virtual QString id() override;
+
+  virtual NodePtr Create(Node *c) override;
   virtual NodePtr copy(Node* c) override;
 
   void Save(QXmlStreamWriter& stream);

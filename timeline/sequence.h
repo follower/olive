@@ -34,6 +34,10 @@ class Sequence : public Node {
   Q_OBJECT
 public:
   Sequence();
+
+  virtual NodePtr Create(Node *c) override;
+  virtual NodePtr copy(Node *c) override;
+
   SequencePtr copy();
 
   virtual void Open() override;
@@ -49,6 +53,7 @@ public:
 
   void Save(QXmlStreamWriter& stream);
 
+  virtual QString id() override;
   virtual QString name() override;
   void SetName(const QString& n);
 
@@ -60,6 +65,8 @@ public:
 
   long GetEndFrame();
   QVector<Clip*> GetAllClips();
+
+  QVector<Track*> GetTracksOfType(olive::TrackType type);
 
   void RefreshClipsUsingMedia(Media* m = nullptr);
   QVector<Clip*> SelectedClips(bool containing = true);
@@ -121,6 +128,8 @@ public:
 signals:
   void Changed();
 private:
+  virtual Sequence* GetSequence() override;
+
   QString name_;
 
   ClipPtr SplitClip(ComboAction* ca, bool transitions, Clip *clip, long frame);
@@ -130,8 +139,6 @@ private:
   MemoryCache::MemoryBuffer buffer_;
 
   NodeParameter* texture_input_;
-
-  using Node::copy;
 };
 
 using SequencePtr = std::shared_ptr<Sequence>;

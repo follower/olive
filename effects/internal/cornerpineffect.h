@@ -26,7 +26,7 @@
 class CornerPinEffect : public EffectNode {
   Q_OBJECT
 public:
-  CornerPinEffect(Clip* c);
+  CornerPinEffect(Node* c);
 
   virtual QString name() override;
   virtual QString id() override;
@@ -34,11 +34,11 @@ public:
   virtual QString description() override;
   virtual NodeSubType subclip_type() override;
   virtual olive::TrackType type() override;
-  virtual NodePtr Create(Clip *c) override;
+  virtual NodePtr Create(Node *c) override;
 
   void process_coords(double timecode, GLTextureCoords& coords, int data);
   void process_shader(double timecode, GLTextureCoords& coords, int iterations);
-  void gizmo_draw(double timecode, GLTextureCoords& coords);
+  virtual void gizmo_draw(double timecode, GLTextureCoords& coords) override;
 private:
   Vec2Input* top_left;
   Vec2Input* top_right;

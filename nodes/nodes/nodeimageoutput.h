@@ -17,6 +17,7 @@ public:
   virtual NodeSubType subclip_type() override;
   virtual olive::TrackType type() override;
   virtual NodePtr Create(Node *c) override;
+  virtual NodePtr copy(Node *c) override;
 
   NodeParameter* texture_input();
 

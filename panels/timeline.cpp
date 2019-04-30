@@ -222,8 +222,8 @@ void Timeline::SetSequence(SequencePtr sequence)
 
   sequence_ = sequence;
   update_sequence();
-  video_area->SetTrackList(sequence_.get(), olive::kTypeVideo);
-  audio_area->SetTrackList(sequence_.get(), olive::kTypeAudio);
+  video_area->SetTrackType(sequence_.get(), olive::kTypeVideo);
+  audio_area->SetTrackType(sequence_.get(), olive::kTypeAudio);
   repaint_timeline();
 
   emit SequenceChanged(sequence_);
@@ -342,11 +342,11 @@ void Timeline::nest() {
         ca->append(new DeleteClipAction(c));
 
         // copy to new
-        Track* track = s->GetTrackList(c->type())->TrackAt(c->track()->Index());
+        Track* track = s->GetTracksOfType(c->type()).at(c->track()->Index());
         ClipPtr copy = std::static_pointer_cast<Clip>(selected_clips.at(i)->copy(track));
         copy->set_timeline_in(copy->timeline_in() - earliest_point);
         copy->set_timeline_out(copy->timeline_out() - earliest_point);
-        track->AddClip(copy);
+        track->AddChild(copy);
 
         new_clips.append(copy);
       }
@@ -781,9 +781,10 @@ QVector<Track *> Timeline::GetTracksInRectangle(int global_top, int global_botto
     int rect_bottom = qMax(relative_tl.y(), relative_br.y());
 
     // determine which clips are in this rectangular selection
-    TrackList* track_list = area->track_list();
-    for (int j=0;j<track_list->TrackCount();j++) {
-      Track* track = track_list->TrackAt(j);
+
+    QVector<Track*> area_tracks = sequence_->GetTracksOfType(area->TrackType());
+    for (int j=0;j<area_tracks.size();j++) {
+      Track* track = area_tracks.at(j);
 
       int track_top = area->view()->getScreenPointFromTrack(track);
       int track_bottom = track_top + track->height();
@@ -875,7 +876,7 @@ void Timeline::transition_tool_click() {
   transition_menu.addAction(tr("Video Transitions"))->setEnabled(false);
 
   for (int i=0;i<olive::node_library.size();i++) {
-    SubClipNodePtr node = olive::node_library.at(i);
+    NodePtr node = olive::node_library.at(i);
     if (node != nullptr && node->subclip_type() == EFFECT_TYPE_TRANSITION && node->type() == olive::kTypeVideo) {
       QAction* a = transition_menu.addAction(node->name());
       a->setData(i);
